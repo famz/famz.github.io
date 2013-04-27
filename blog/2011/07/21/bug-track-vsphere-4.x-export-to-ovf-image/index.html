@@ -1,0 +1,224 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Bug track: vSphere 4.x 'Export to OVF' image - Virt Block</title>
+	<meta name="author" content="Fam Zheng">
+
+	
+	<meta name="description" content="Bug report: from https://bugzilla.redhat.com/show_bug.cgi?id=548723 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+We found that using &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Virt Block" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Virt Block</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:famz.github.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:famz.github.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Bug Track: vSphere 4.x 'Export to OVF' Image</h2>
+	<div class="entry-content"><h2>Bug report:</h2>
+
+<p>from <a href="https://bugzilla.redhat.com/show_bug.cgi?id=548723">https://bugzilla.redhat.com/show_bug.cgi?id=548723</a></p>
+
+<!-- more -->
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>We found that using the vSphere 4.x "Export to OVF" option would
+</span><span class='line'>produce a VMDK file that qemu-img could not convert to raw.
+</span><span class='line'>For older qemu-img the file would be converted to something that was
+</span><span class='line'>not all zeroes, but nevertheless was certainly not a raw disk image.
+</span><span class='line'>For current qemu-img, we get an "Operation not permitted" error which
+</span><span class='line'>is at least better than silent corruption.
+</span><span class='line'>
+</span><span class='line'>Full details are in this bug report:
+</span><span class='line'>
+</span><span class='line'>https://bugzilla.redhat.com/show_bug.cgi?id=548723
+</span><span class='line'>
+</span><span class='line'>Note the links at the top of that bug are broken.  The disk image
+</span><span class='line'>which failed is:
+</span><span class='line'>
+</span><span class='line'>[][http://oirase.annexia.org/tmp/TestLinux-disk1.vmdk]
+</span><span class='line'>
+</span><span class='line'>SHA1: 2c81bae89210b075acc51da9d025935470149d55
+</span><span class='line'>
+</span><span class='line'>[][http://oirase.annexia.org/tmp/TestLinux.ovf]
+</span><span class='line'>
+</span><span class='line'>SHA1: 30831689b8c6f1b1a1fcbb728769b5f71056a580
+</span><span class='line'>
+</span><span class='line'>Rich.</span></code></pre></td></tr></table></div></figure>
+
+
+<hr />
+
+<p>Cause: the exported image is streamOptimized, which has the same header magic
+with monolithicSparse, qemu would attempt to open it, without enough
+verification. But the fields and compression are not handled at all, leading to
+the conversion failure.</p>
+
+<p>This will be fixed with the upcoming <code>streamOptimized</code> support patches.</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-07-21T01:00:00+08:00" pubdate data-updated="true">Jul 21<span>st</span>, 2011</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/gsoc/'>gsoc</a>
+
+
+</div>
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
+
+    Fam Zheng
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

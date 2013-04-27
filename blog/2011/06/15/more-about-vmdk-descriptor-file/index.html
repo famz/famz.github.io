@@ -1,0 +1,198 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>More About Vmdk Descriptor File - Virt Block</title>
+	<meta name="author" content="Fam Zheng">
+
+	
+	<meta name="description" content="The VMware behavior on opening VMDK disk is: Read the descriptor file, if it has magic bytes (“VMDK” or “COWD”) in first 4
+bytes, it’s recognized as &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Virt Block" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Virt Block</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:famz.github.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:famz.github.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">More About Vmdk Descriptor File</h2>
+	<div class="entry-content"><p>The VMware behavior on opening VMDK disk is:</p>
+
+<p>Read the descriptor file, if it has magic bytes (“VMDK” or “COWD”) in first 4
+bytes, it’s recognized as monolithic sparse disk, otherwise try to parse the
+file as a text file.</p>
+
+<!-- more -->
+
+
+<p>The text file is a VMDK descriptor file when the first option line (the line
+after leading comment lines and blank lines) gives the value of ‘version’. I.e.
+the line is in the form of ‘version=1′ or ‘version=2′ (only two values are
+recognized as tested).</p>
+
+<p>No extra space or uppercase is accepted, except the cases of:</p>
+
+<pre><code>version=1&lt;some spaces&gt;
+</code></pre>
+
+<p>or</p>
+
+<pre><code>version=1&lt;anything non-numeric&gt;
+</code></pre>
+
+<p>are OK.</p>
+
+<p>Following option and comment lines can be in any order, which has no effect on
+VMware’s opening and manipulating. But whenever there’s a modification from
+VMware (e.g. updating CID), the whole descriptor is regenerated with a fixed
+template, resulting in a format like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Disk DescriptorFile</span>
+</span><span class='line'><span class="nv">version</span><span class="o">=</span>1
+</span><span class='line'><span class="nv">CID</span><span class="o">=</span>fffffffe
+</span><span class='line'><span class="nv">parentCID</span><span class="o">=</span>ffffffff
+</span><span class='line'><span class="nv">createType</span><span class="o">=</span><span class="s2">&quot;twoGbMaxExtentSparse&quot;</span>
+</span><span class='line'><span class="c"># Extent description</span>
+</span><span class='line'>RW 4192256 SPARSE <span class="s2">&quot;test-s001.vmdk&quot;</span>
+</span><span class='line'>...
+</span><span class='line'><span class="c"># The Disk Data Base</span>
+</span><span class='line'><span class="c">#DDB</span>
+</span><span class='line'>ddb.adapterType <span class="o">=</span> <span class="s2">&quot;ide&quot;</span>
+</span><span class='line'>ddb.geometry.sectors <span class="o">=</span> <span class="s2">&quot;63&quot;</span>
+</span><span class='line'>ddb.geometry.heads <span class="o">=</span> <span class="s2">&quot;16&quot;</span>
+</span><span class='line'>ddb.geometry.cylinders <span class="o">=</span> <span class="s2">&quot;10402&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-15T01:00:00+08:00" pubdate data-updated="true">Jun 15<span>th</span>, 2011</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/gsoc/'>gsoc</a>
+
+
+</div>
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
+
+    Fam Zheng
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,195 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Status Update: mono flat almost ready - Virt Block</title>
+	<meta name="author" content="Fam Zheng">
+
+	
+	<meta name="description" content="After one week’s work, our mono-flat support is now bound into vmdk. The
+support includes probe, open, read, write, is_allocated and also
+backing_hd &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Virt Block" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Virt Block</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:famz.github.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:famz.github.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Status Update: Mono Flat Almost Ready</h2>
+	<div class="entry-content"><p>After one week’s work, our mono-flat support is now bound into vmdk. The
+support includes <code>probe</code>, <code>open</code>, <code>read</code>, <code>write</code>, <code>is_allocated</code> and also
+<code>backing_hd</code> of <code>monolithicFlat</code> type images.</p>
+
+<!-- more -->
+
+
+<p>Read/write are using the same routine with <code>get_cluster_offset</code> handling address
+lookup. We can observe flat extent as a very large cluster, this view provides
+inconsistent between flat and sparse extents. When look up an offset within
+either format, we need a <code>cluster_offset</code> and <code>index_in_cluster</code>. So for flat the
+<code>cluster_offset</code> is 0 and <code>index_in_cluster</code> is the sector index in the whole
+extent.</p>
+
+<p>There’s a bug that fails <code>qemu-iotest 019</code>(which writes to image that has
+parent). The cause is that when allocating cluster that is not present,
+<code>get_whole_cluster</code> reads from parent image, with an offset that is not aligned
+to cluster, and write to the newly allocated cluster.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'>    <span class="n">ret</span> <span class="o">=</span> <span class="n">bdrv_read</span><span class="p">(</span><span class="n">bs</span><span class="o">-&gt;</span><span class="n">backing_hd</span><span class="p">,</span> <span class="n">offset</span> <span class="o">&gt;&gt;</span> <span class="mi">9</span><span class="p">,</span> <span class="n">whole_grain</span><span class="p">,</span>
+</span><span class='line'>            <span class="n">extent</span><span class="o">-&gt;</span><span class="n">cluster_sectors</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//Write grain only into the active image</span>
+</span><span class='line'>    <span class="n">ret</span> <span class="o">=</span> <span class="n">bdrv_write</span><span class="p">(</span><span class="n">extent</span><span class="o">-&gt;</span><span class="n">file</span><span class="p">,</span> <span class="n">cluster_offset</span><span class="p">,</span> <span class="n">whole_grain</span><span class="p">,</span>
+</span><span class='line'>            <span class="n">extent</span><span class="o">-&gt;</span><span class="n">cluster_sectors</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is obviously bug if offset is 512, and <code>cluster_offset</code> points to #0. To
+correct it only one line is added ahead:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'>        <span class="c1">// floor offset to cluster</span>
+</span><span class='line'>        <span class="n">offset</span> <span class="o">-=</span> <span class="n">offset</span> <span class="o">%</span> <span class="p">(</span><span class="n">extent</span><span class="o">-&gt;</span><span class="n">cluster_sectors</span> <span class="o">*</span> <span class="mi">512</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&#8217;s it.</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-05-28T01:00:00+08:00" pubdate data-updated="true">May 28<span>th</span>, 2011</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/gsoc/'>gsoc</a>
+
+
+</div>
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
+
+    Fam Zheng
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

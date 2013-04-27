@@ -1,0 +1,207 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Testing vmware-mount - Virt Block</title>
+	<meta name="author" content="Fam Zheng">
+
+	
+	<meta name="description" content="VMware VDDK contains a tool ‘vmware-mount’ that is capable of mounting a
+partition in VMDK disk. For example if we have a disk image named Minit.vmdk &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Virt Block" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Virt Block</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:famz.github.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:famz.github.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Testing Vmware-mount</h2>
+	<div class="entry-content"><p>VMware VDDK contains a tool ‘vmware-mount’ that is capable of mounting a
+partition in VMDK disk. For example if we have a disk image named Minit.vmdk in
+which a Linux Mint is installed. We can examine the partitions with
+vmware-mount command by:</p>
+
+<pre><code>sudo vmware-mount -p Mint.vmdk
+</code></pre>
+
+<p>The output is:</p>
+
+<!-- more -->
+
+
+<pre><code>Nr      Start       Size Type Id Sytem
+-- ---------- ---------- ---- -- ------------------------
+1       2048     192512 BIOS 82 Linux swap
+2     194560   83689472 BIOS 83 Linux
+</code></pre>
+
+<p>Now that we want to mount the second partition, the command is as simple to
+use, just give the file name, partition number and mount point:</p>
+
+<pre><code>sudo vmware-mount Mint.vmdk 2 /mnt/mint
+</code></pre>
+
+<p>Once it succeeds, we can access the vm files under the mount point. Wonderful,
+isn’t it?</p>
+
+<p>Let’s see how it works. Check out system mount points by running</p>
+
+<pre><code>mount | grep /mnt/mint
+</code></pre>
+
+<p>finding the line:</p>
+
+<pre><code>/dev/loop0 on /mnt/mint type ext3 (rw,nosuid,nodev)
+</code></pre>
+
+<p>It’s a loop device, let’s follow it by</p>
+
+<pre><code>losetup -a | grep /dev/loop0
+</code></pre>
+
+<p>seeing:</p>
+
+<pre><code>/dev/loop0: [0014]:2 (/var/run/vmware/fuse/10569954799845303045/flat), offset 99614720
+</code></pre>
+
+<p>Seeing the word <code>fuse</code>, you may guess the file is driven by FUSE. Yes you are
+right, let’s prove it. Check mount again and find another interesting clue, a
+FUSE mount point:</p>
+
+<pre><code>/dev/fuse on /var/run/vmware/fuse/10569954799845303045 type fuse (rw,nosuid,nodev,allow_other)
+</code></pre>
+
+<p>That’s the answer. VMware establishes a FUSE mount point at</p>
+
+<pre><code>/var/run/vmware/fuse/10569954799845303045/
+</code></pre>
+
+<p>Where in it there is only a file ‘flat’ serving as a block representing all
+data in the mounted image file. Access to the file is passed to kernel as FUSE
+request and then to VMware userspace FS server, where the server knows how to
+read/write VMDK to complete the request and return to the caller.
+Generally, the relationship is like this:</p>
+
+<pre><code>Boo, image lost :(
+</code></pre>
+
+<p>Simple yet elegant!</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-15T01:00:00+08:00" pubdate data-updated="true">Jun 15<span>th</span>, 2011</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/gsoc/'>gsoc</a>
+
+
+</div>
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
+
+    Fam Zheng
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

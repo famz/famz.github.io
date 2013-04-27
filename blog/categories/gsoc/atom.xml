@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: gsoc | Virt Block]]></title>
+  <link href="http://famz.github.com/blog/categories/gsoc/atom.xml" rel="self"/>
+  <link href="http://famz.github.com/"/>
+  <updated>2013-04-27T17:06:13+08:00</updated>
+  <id>http://famz.github.com/</id>
+  <author>
+    <name><![CDATA[Fam Zheng]]></name>
+    <email><![CDATA[feiran.zheng@redhat.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Comments on VMDK formats]]></title>
+    <link href="http://famz.github.com/blog/2011/08/19/comments-on-vmdk-formats/"/>
+    <updated>2011-08-19T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/08/19/comments-on-vmdk-formats</id>
+    <content type="html"><![CDATA[<p>To sum up part of the work in GSoC 2011, this post talks about some facts of
+real-world VMDK format, which is not quite well documented in the official
+Specification <a href="http://www.vmware.com/app/vmdk/?src=vmdk">Virtual Disk Format
+1.1</a> (version may be changed from the
+time this was written).</p>
+
+<!-- more -->
+
+
+<h2>Descriptor File Recognition Criteria</h2>
+
+<p>In the specification it is not clearly defined what information is required for
+image reader program to recognize the file as a VMDK image. The descriptor file
+has no magic bytes as a text file, the first lines are consequently important
+for recognizing. When you want to edit or generate from scratch a VMDK
+descriptor file, don’t hesitate to follow the structure of the sample in the
+specification, otherwise there are at least first two lines shouldn’t be moved
+or mutated, because the first non-comment line “version=1″ is what makes a de
+facto recognition criteria according to VMware Workstation. You can find the
+detail in <a href="/blog/2011/06/15/more-about-vmdk-descriptor-file/">this</a> and
+<a href="/blog/2011/05/23/vmdk-support-probing-mono-flat/">this</a> post.</p>
+
+<h2>ESX Server Sparse Extent and VMDK3</h2>
+
+<p>ESX Server Sparse Extent is a briefly specified format in the specificaion. It
+is said to be a sparse extent type used in ESX servers, but it is definitely
+not appearing in recent ESX applications. On the other hand the format is very
+close to the obsolete VMDK3 sparse extent (somehow indistinguishable).</p>
+
+<p>To be short, ESX Server Sparse Extent is (no longer) a real world VMDK format
+type, it might be an alias of old VMDK3 (which is only used before VMware
+workstation 4.0 and no longer supported in VMware Workstation 5 and newer
+versions), and it is not seen anywhere else except the specification. However
+there are difference between VMDK3 and ESX Server Sparse Extent, it’s discussed
+in details <a href="/blog/2011/07/03/differences-between-vmdk3-and-the-specification/">here</a></p>
+
+<h2>About createTypes</h2>
+
+<p>There are a dozen of VMDK create types according to the specification, but only
+half of them are commonly used. MonolithicSparse, monolithicFlat,
+twoGbMaxExtentSparse and twoGbMaxExtentFlat are four brothers that are produced
+according to two option flags: “split into 2GB files” and “allocate all space
+on creating”. Besides these, vmfs is widely used in ESX servers, whose format
+detail is not open so we don’t have much to dig in. StreamOptimized is a format
+for exporting ESX server VM’s, this will be discuzed later.</p>
+
+<h2>Header field: overHead</h2>
+
+<p>OverHead is a field in SparseExtentHeader, it’s explaination as “overHead is
+the number of sectors occupied by the metadata”. Here the word “metadata” means
+everything other than data grains, including header and grain directory/tables,
+which are all allocated once the image is created. As a result, overHead is
+also the offset of the first data grain. This is an implication and should be
+taken care of.</p>
+
+<h2>About compress and streamOptimized</h2>
+
+<p>Compression is an optional feature in sparse extents, the compressing algorithm
+is RFC 1951 (Deflate). Data is only compressed in streamOptimized images, which
+also has grainMarker feature enable. Compression is not used alone, if we
+create a monolithicSparse with header.compressAlgorithm set and write some
+compressed data, VMware won’t read the correct data, it simply read the
+compressed bytes out.</p>
+
+<p>StreamOptimized is used mainly for the purpose of transferring, although it can
+be attached to VM in VMware Workstation and read data normally, writing is
+limited to the unallocated offsets, any overwriting to existing disk sectors
+are silently discarded. This would easily lead to inconsistence, so I think the
+only reasonable use case of streamOptimized is to export some local image to
+this type for upload and download, once the transmission is over, it should be
+converted back to host disk types (such as monolithicSparse or similar), before
+booting the guest system.</p>
+
+<h2>Special Images</h2>
+
+<p>There are image cases not strictly following the specification, but found to
+working with VMware. One of those is Haiku VMDK image (VM mirrors at
+http://haiku-os.org/get-haiku). It is composed of Host Sparse Extent Header +
+Descriptor file + Flat data. Where header fields capacity, gdOffset and
+rgdOffset are zero, and the following descriptor specifies the extent to be
+FLAT pointing to the file itself with offset 128 and the data start from offset
+0×10000.  Using sparse header with flat data is uncommon, and obviously beyond
+definition of the specification. However both VMware and VirtualBox support
+such case. Furthermore, as it is tested, the vmdk file name must be the same
+with the one in descriptor for VMware to be correctly attached, just like how
+descriptor file + separate flat extent work.  There was also a QEMU bug report
+with <a href="/blog/2011/07/21/bug-track-issue-with-block-vmdk/">this</a>.</p>
+
+<h2>vmware-mount</h2>
+
+<p>VMware VDDK contains a tool ‘vmware-mount’ that is capable of mounting a
+partition in VMDK disk on the host file system. It uses FUSE to achieve this.
+The internal is introduced <a href="/blog/2011/06/15/testing-vmware-mount/">here</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bug track: vSphere 4.x 'Export to OVF' image]]></title>
+    <link href="http://famz.github.com/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image/"/>
+    <updated>2011-07-21T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image</id>
+    <content type="html"><![CDATA[<h2>Bug report:</h2>
+
+<p>from <a href="https://bugzilla.redhat.com/show_bug.cgi?id=548723">https://bugzilla.redhat.com/show_bug.cgi?id=548723</a></p>
+
+<!-- more -->
+
+
+<p>```
+We found that using the vSphere 4.x "Export to OVF" option would
+produce a VMDK file that qemu-img could not convert to raw.
+For older qemu-img the file would be converted to something that was
+not all zeroes, but nevertheless was certainly not a raw disk image.
+For current qemu-img, we get an "Operation not permitted" error which
+is at least better than silent corruption.</p>
+
+<p>Full details are in this bug report:</p>
+
+<p>https://bugzilla.redhat.com/show_bug.cgi?id=548723</p>
+
+<p>Note the links at the top of that bug are broken.  The disk image
+which failed is:</p>
+
+<p>[][http://oirase.annexia.org/tmp/TestLinux-disk1.vmdk]</p>
+
+<p>SHA1: 2c81bae89210b075acc51da9d025935470149d55</p>
+
+<p>[][http://oirase.annexia.org/tmp/TestLinux.ovf]</p>
+
+<p>SHA1: 30831689b8c6f1b1a1fcbb728769b5f71056a580</p>
+
+<p>Rich.
+```</p>
+
+<hr />
+
+<p>Cause: the exported image is streamOptimized, which has the same header magic
+with monolithicSparse, qemu would attempt to open it, without enough
+verification. But the fields and compression are not handled at all, leading to
+the conversion failure.</p>
+
+<p>This will be fixed with the upcoming <code>streamOptimized</code> support patches.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bug track: Issue with block/vmdk]]></title>
+    <link href="http://famz.github.com/blog/2011/07/21/bug-track-issue-with-block-vmdk/"/>
+    <updated>2011-07-21T00:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/07/21/bug-track-issue-with-block-vmdk</id>
+    <content type="html"><![CDATA[<p>Bug report:</p>
+
+<!-- more -->
+
+
+<blockquote><p>I tried to boot the vmdk generated by the Haiku build system here but it
+aborted.</p>
+
+<p>It seems the header has the capacity field set to 0, to mean that there is no
+embedded grain directory if I understand the vbox sources...</p>
+
+<p>At least the same image boots perfectly in VBox.</p>
+
+<p>If anyone wants to test :</p>
+
+<p>http://haiku-files.org/vmware/</p>
+
+<p>any image should do.</p>
+
+<p>They are generated by:</p>
+
+<p>http://dev.haiku-os.org/browser/haiku/trunk/src/tools/vmdkimage/vmdkimage.cpp#L303</p>
+
+<p>The mention in vbox:</p>
+
+<p>http://www.virtualbox.org/browser/trunk/src/VBox/Storage/VMDK.cpp#L2796</p>
+
+<p>I might have a closer look at some point but I don't know when.</p>
+
+<p>François.</p></blockquote>
+
+<hr />
+
+<p>The haiku vmdk image is special, it is composed of</p>
+
+<pre><code>Host Sparse Extent Header + Descriptor file + Flat data
+</code></pre>
+
+<p>Where header fields capacity, <code>gdOffset</code> and
+<code>rgdOffset</code> are zero, and the following descriptor specifies the extent to be
+FLAT pointing to the file itself with offset 128 and the data start from offset
+0×10000.</p>
+
+<p>Using sparse header with flat data is uncommon, and obviously beyond definition
+of the specification. However both VMware and VirtualBox support such case.
+Furthermore, as it is tested, the vmdk file name must be the same with the one
+in descriptor for VMware to be correctly attached, just like how descriptor
+file + separate flat extent work.</p>
+
+<p>The solution could be:</p>
+
+<p>Test <code>header.capacity</code> when opening, when it is zero (which should never be for
+normal sparse vmdk), abort opening it as normal sparse but instead reopen by
+the descriptor.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Differences between VMDK3 and the specification 'ESX Server Sparse Extent']]></title>
+    <link href="http://famz.github.com/blog/2011/07/03/differences-between-vmdk3-and-the-specification/"/>
+    <updated>2011-07-03T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/07/03/differences-between-vmdk3-and-the-specification</id>
+    <content type="html"><![CDATA[<p>VMDK3 is a format which QEMU has implemented r/w support, it is the only image
+format that VMware Workstation 3 produces, and was updated to what we call
+VMDK4 since Workstation 4.0. The older format is no longer valid in latest
+VMware Workstation versions, so I have to install Workstation 3 to get an image
+sample.</p>
+
+<!-- more -->
+
+
+<p>On the other hand there is a mysterious format found in “VMware Virtual Disk
+Specification 1.1″, called “ESX Server Sparse Extents”. It is not appearing in
+various ESX Server versions (2.0, 3.5 and 4.0), not seen anywhere except the
+Specification.</p>
+
+<p>Those two formats are mentioned here as they have the same magic bytes (“COWD”)
+and image header structure, so we wonder if VMDK3 is alias to ESX Server Sparse
+Extents. What I did was compare the Specification to the image sample I got
+from Workstation 3, and also to VMDK3 code in QEMU block driver. It turns out
+that we do have ready support of this old format, but it differs somewhere from
+how ESX Server Sparse is documented. The major differences are as follows:</p>
+
+<ul>
+<li><p>header.version:</p>
+
+<p>  specification ==1 but vmdk3 == 3</p></li>
+<li><p>header.flags:</p>
+
+<p>  specification == 3 but vmdk3 == 0×1b</p></li>
+<li><p>L2 table entries:</p>
+
+<p>  specification == 4096 but vmdk3 == 512</p></li>
+</ul>
+
+
+<p>That the two header fields vary could explain why look-up table sizes differ,
+and as a result the sector access calculation can’t be constant for two
+formats. The obstacle for us is that these header fields are not documented
+except for the given magic number, and all that we know is the two cases with
+different random numbers.</p>
+
+<p>Finally, the conclusion is that VMDK3 and “ESX Server Sparse Extents” are quite
+similar to each other but not completely identical in several fields. It is
+more reasonable to say they are different versions of the ‘COWD’ magic’d image
+type. We get the former version from very outmoded VMware software, but can’t
+find any implementation of the latter.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bug track: qemu-img convert fails to convert, generates a 512byte file output]]></title>
+    <link href="http://famz.github.com/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert/"/>
+    <updated>2011-07-03T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert</id>
+    <content type="html"><![CDATA[<p>Bug report:</p>
+
+<p>Link: <a href="https://bugs.launchpad.net/qemu/+bug/784977">https://bugs.launchpad.net/qemu/+bug/784977</a></p>
+
+<p>Reported by Andy Brook on 2011-05-19</p>
+
+<!-- more -->
+
+
+<h2>Bug Description</h2>
+
+<blockquote><p>I have a Vmware image, so I have files like 'Ubuntu.vmdk', want to convert to VirtualBox .vdi format using qemu, the first stage of extracting the image with 'qemu-img convert Ubuntu.vmdk output.bin' just generates a 512byte file:
+{quote}</p>
+
+<h1>Disk DescriptorFile</h1>
+
+<p>version=1
+CID=36be9761
+parentCID=ffffffff
+createType="twoGbMaxExtentSparse"</p>
+
+<h1>Extent description</h1>
+
+<p>RW 4192256 SPARSE "Ubuntu-s001.vmdk"
+RW 4192256 SPARSE "Ubuntu-s002.vmdk"
+RW 4192256 SPARSE "Ubuntu-s003.vmdk"
+RW 4192256 SPARSE "Ubuntu-s004.vmdk"
+RW 4192256 SPARSE "Ubuntu-s005.vmdk"
+RW 4192256 SPARSE "Ubuntu-s006.vmdk"
+RW 4192256 SPARSE "Ubuntu-s007.vmdk"
+RW 4192256 SPARSE "Ubuntu-s008.vmdk"
+RW 4192256 SPARSE "Ubuntu-s009.vmdk"
+RW 4192256 SPARSE "Ubuntu-s010.vmdk"
+RW 20480 SPARSE "Ubunt
+{quote}
+Here is the input Ubuntu.vmdk file:
+{quote}</p>
+
+<h1>Disk DescriptorFile</h1>
+
+<p>version=1
+CID=36be9761
+parentCID=ffffffff
+createType="twoGbMaxExtentSparse"</p>
+
+<h1>Extent description</h1>
+
+<p>RW 4192256 SPARSE "Ubuntu-s001.vmdk"
+RW 4192256 SPARSE "Ubuntu-s002.vmdk"
+RW 4192256 SPARSE "Ubuntu-s003.vmdk"
+RW 4192256 SPARSE "Ubuntu-s004.vmdk"
+RW 4192256 SPARSE "Ubuntu-s005.vmdk"
+RW 4192256 SPARSE "Ubuntu-s006.vmdk"
+RW 4192256 SPARSE "Ubuntu-s007.vmdk"
+RW 4192256 SPARSE "Ubuntu-s008.vmdk"
+RW 4192256 SPARSE "Ubuntu-s009.vmdk"
+RW 4192256 SPARSE "Ubuntu-s010.vmdk"
+RW 20480 SPARSE "Ubuntu-s011.vmdk"</p>
+
+<h1>The Disk Data Base</h1>
+
+<h1>DDB</h1>
+
+<p>ddb.toolsVersion = "7240"
+ddb.adapterType = "lsilogic"
+ddb.geometry.sectors = "63"
+ddb.geometry.heads = "255"
+ddb.geometry.cylinders = "2610"
+ddb.virtualHWVersion = "6"
+{quote}
+No stack trace or other output was found. Anything I can add (other than the 20G VM image to reproduce and I'll be happy to provide)</p></blockquote>
+
+<hr />
+
+<p>Cause: This is a typical subformat (<code>twoGbMaxExtentSparse</code>) that VMDK driver of
+current QEMU wouldn’t recognize, so that I believe this Ubuntu.vmdk is treated
+as raw by qemu-img convert.</p>
+
+<p>This format is already supported in qemu-vmdk branch and the supporting is
+expected to be upstreamed soon, where this will be fixed too.</p>
+]]></content>
+  </entry>
+  
+</feed>

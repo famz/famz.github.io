@@ -1,0 +1,170 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Status Update: multi flat/sparse support - Virt Block</title>
+	<meta name="author" content="Fam Zheng">
+
+	
+	<meta name="description" content="Lately an updated patch set has been posted to list, which is splitted and
+improved according to Kevin’s instructions, The patches included &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Virt Block" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Virt Block</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:famz.github.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:famz.github.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Status Update: Multi Flat/sparse Support</h2>
+	<div class="entry-content"><p>Lately an updated patch set has been posted to list, which is splitted and
+improved according to Kevin’s instructions, The patches included <code>monolithicFlat</code>
+and <code>monolithicSparse</code> support.</p>
+
+<!-- more -->
+
+
+<p>I have downloaded roughly a dozen of vmware appliances, they have various
+formats like <code>monolithicSparse</code>, <code>twoGbMaxExtentSparse</code>, <code>vmfs</code> and <code>raw</code>. Flat formats
+are hardly used for VM publish and transfering, and also is ESX Server Sparse
+Extent. I have to turn to ESX and figure out how to use it to produce the
+latter.</p>
+
+<p>As we seem only a step away from <code>twoGbMaxExtent{Sparse/Flat}</code> support, I
+decided to take them prioritized and it turns out that under the structure of
+<code>VmdkExtent</code> array, it’s not much work to get it out. By now I have just
+implemented the two formats and we have supported four types in all:</p>
+
+<ul>
+<li><code>monolithicFlat</code></li>
+<li><code>monolithicSparse</code></li>
+<li><code>twoGbMaxExtentFlat</code></li>
+<li><code>twoGbMaxExtentSparse</code></li>
+</ul>
+
+
+<p>Testing with downloaded appliance (such as Ubuntu, Fedora and Mint virtual
+machines), it shows that the format works well.</p>
+
+<p>The cluster compression support and <strong>Stream Optimized Compressed Sparse
+Extents</strong> is delayed because I want to have some real world sample image ahead,
+to prop up the development. I’ll continue to find in vmware appliance directory
+and try more vmware applications to create ones.</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-06T01:00:00+08:00" pubdate data-updated="true">Jun 6<span>th</span>, 2011</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/gsoc/'>gsoc</a>
+
+
+</div>
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
+
+    Fam Zheng
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

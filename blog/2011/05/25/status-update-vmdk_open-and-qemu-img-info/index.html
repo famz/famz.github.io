@@ -1,0 +1,205 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Status Update: vmdk open and qemu-img info on Multi File Images - Virt Block</title>
+	<meta name="author" content="Fam Zheng">
+
+	
+	<meta name="description" content="The BlockDriver of vmdk is defined as 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+static BlockDriver bdrv_vmdk = { .format_name = &quot;vmdk&quot;, . &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Virt Block" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Virt Block</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:famz.github.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:famz.github.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Status Update: Vmdk open and Qemu-img Info on Multi File Images</h2>
+	<div class="entry-content"><p>The BlockDriver of vmdk is defined as</p>
+
+<!-- more -->
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="n">BlockDriver</span> <span class="n">bdrv_vmdk</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">format_name</span> <span class="o">=</span> <span class="s">&quot;vmdk&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">instance_size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">BDRVVmdkState</span><span class="p">),</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_probe</span> <span class="o">=</span> <span class="n">vmdk_probe</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_open</span> <span class="o">=</span> <span class="n">vmdk_open</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_read</span> <span class="o">=</span> <span class="n">vmdk_read</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_write</span> <span class="o">=</span> <span class="n">vmdk_write</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_close</span> <span class="o">=</span> <span class="n">vmdk_close</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_create</span> <span class="o">=</span> <span class="n">vmdk_create</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_flush</span> <span class="o">=</span> <span class="n">vmdk_flush</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_is_allocated</span> <span class="o">=</span> <span class="n">vmdk_is_allocated</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">.</span><span class="n">create_options</span> <span class="o">=</span> <span class="n">vmdk_create_options</span><span class="p">,</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>Bdrv_*</code> functions are to be modified to add support of new formats. Now
+probe and open are ready to process mono flat images, others are left dummy
+functions for now. And original code for mono sparse format is temporarily
+commented out because there are a number of trivial changes to migrate them to
+new state structure. I think firstly enable mono flat handling before sparse is
+a smoother start.</p>
+
+<p>The remaining work of today and tomorrow are the six other functions (read,
+write, close, etc.), which are quite plain ones too.</p>
+
+<p>After implementing <code>bdrv_open</code>, here comes one issue in qemu-img.c. When running
+qemu-img info on image file, a “file size” is printed where the value is how
+host system thinks of the file size. This value generally represents how much
+host OS file system space the VM disk takes. In our case of multiple file as
+one VM disk, only descriptor file’s size is counted by
+<code>qemu-img.c:get_allocated_file_size</code>. If we want to show the total size of
+multiple file image, this logic has to be updated.</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-05-25T01:00:00+08:00" pubdate data-updated="true">May 25<span>th</span>, 2011</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/gsoc/'>gsoc</a>
+
+
+</div>
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
+
+    Fam Zheng
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

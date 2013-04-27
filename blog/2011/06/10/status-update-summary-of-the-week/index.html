@@ -1,0 +1,163 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Status Update: Summary of the Week - Virt Block</title>
+	<meta name="author" content="Fam Zheng">
+
+	
+	<meta name="description" content="Work done this week: Multi extents subformats support. The code is ready to handle multi extents disks (twoGbMaxExtent* formats)
+Investigated disk &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Virt Block" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Virt Block</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:famz.github.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:famz.github.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Status Update: Summary of the Week</h2>
+	<div class="entry-content"><p>Work done this week:</p>
+
+<!-- more -->
+
+
+<ol>
+<li><p>Multi extents subformats support. The code is ready to handle multi extents disks (<code>twoGbMaxExtent*</code> formats)</p></li>
+<li><p>Investigated disk image formats on ESX Server 3.5 and 4.</p>
+
+<p>Downloaded and installed ESX servers on VM, created VM disks and analyzed
+their formats. The conclusion is that neither ESX Server has COWD sparse
+extent, it seems the format described in spec is not widely used nowadays.
+Although the vmdk driver now should support that type extent, but no real
+world image is seen so far for a test.</p></li>
+<li><p>Checking out VDDK. The Virtual Disk Development Kit provides library
+interface for everyday work on various VM disk formats, such as
+create/clone/read/write. And also a set of tools to manage or mount images.
+(The idea of mounting image disk as host OS block device seems a nice use
+case, could this possibly be done through a generic QEMU block driver?
+Qcow2 can be mounted with nbd:
+<a href="http://en.wikipedia.org/wiki/Qcow#Mounting_qcow2_images">http://en.wikipedia.org/wiki/Qcow#Mounting_qcow2_images</a>)</p></li>
+<li><p>Sparse extent compression support. The compression support is added by
+using zlib compress/uncompress interface. The code is already written but
+still need test.</p></li>
+</ol>
+
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-10T01:00:00+08:00" pubdate data-updated="true">Jun 10<span>th</span>, 2011</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/gsoc/'>gsoc</a>
+
+
+</div>
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
+
+    Fam Zheng
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

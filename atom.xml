@@ -1,0 +1,1034 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Virt Block]]></title>
+  <link href="http://famz.github.com/atom.xml" rel="self"/>
+  <link href="http://famz.github.com/"/>
+  <updated>2013-04-27T17:06:13+08:00</updated>
+  <id>http://famz.github.com/</id>
+  <author>
+    <name><![CDATA[Fam Zheng]]></name>
+    <email><![CDATA[feiran.zheng@redhat.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Comments on VMDK formats]]></title>
+    <link href="http://famz.github.com/blog/2011/08/19/comments-on-vmdk-formats/"/>
+    <updated>2011-08-19T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/08/19/comments-on-vmdk-formats</id>
+    <content type="html"><![CDATA[<p>To sum up part of the work in GSoC 2011, this post talks about some facts of
+real-world VMDK format, which is not quite well documented in the official
+Specification <a href="http://www.vmware.com/app/vmdk/?src=vmdk">Virtual Disk Format
+1.1</a> (version may be changed from the
+time this was written).</p>
+
+<!-- more -->
+
+
+<h2>Descriptor File Recognition Criteria</h2>
+
+<p>In the specification it is not clearly defined what information is required for
+image reader program to recognize the file as a VMDK image. The descriptor file
+has no magic bytes as a text file, the first lines are consequently important
+for recognizing. When you want to edit or generate from scratch a VMDK
+descriptor file, don’t hesitate to follow the structure of the sample in the
+specification, otherwise there are at least first two lines shouldn’t be moved
+or mutated, because the first non-comment line “version=1″ is what makes a de
+facto recognition criteria according to VMware Workstation. You can find the
+detail in <a href="http://famz.github.com/blog/2011/06/15/more-about-vmdk-descriptor-file/">this</a> and
+<a href="http://famz.github.com/blog/2011/05/23/vmdk-support-probing-mono-flat/">this</a> post.</p>
+
+<h2>ESX Server Sparse Extent and VMDK3</h2>
+
+<p>ESX Server Sparse Extent is a briefly specified format in the specificaion. It
+is said to be a sparse extent type used in ESX servers, but it is definitely
+not appearing in recent ESX applications. On the other hand the format is very
+close to the obsolete VMDK3 sparse extent (somehow indistinguishable).</p>
+
+<p>To be short, ESX Server Sparse Extent is (no longer) a real world VMDK format
+type, it might be an alias of old VMDK3 (which is only used before VMware
+workstation 4.0 and no longer supported in VMware Workstation 5 and newer
+versions), and it is not seen anywhere else except the specification. However
+there are difference between VMDK3 and ESX Server Sparse Extent, it’s discussed
+in details <a href="http://famz.github.com/blog/2011/07/03/differences-between-vmdk3-and-the-specification/">here</a></p>
+
+<h2>About createTypes</h2>
+
+<p>There are a dozen of VMDK create types according to the specification, but only
+half of them are commonly used. MonolithicSparse, monolithicFlat,
+twoGbMaxExtentSparse and twoGbMaxExtentFlat are four brothers that are produced
+according to two option flags: “split into 2GB files” and “allocate all space
+on creating”. Besides these, vmfs is widely used in ESX servers, whose format
+detail is not open so we don’t have much to dig in. StreamOptimized is a format
+for exporting ESX server VM’s, this will be discuzed later.</p>
+
+<h2>Header field: overHead</h2>
+
+<p>OverHead is a field in SparseExtentHeader, it’s explaination as “overHead is
+the number of sectors occupied by the metadata”. Here the word “metadata” means
+everything other than data grains, including header and grain directory/tables,
+which are all allocated once the image is created. As a result, overHead is
+also the offset of the first data grain. This is an implication and should be
+taken care of.</p>
+
+<h2>About compress and streamOptimized</h2>
+
+<p>Compression is an optional feature in sparse extents, the compressing algorithm
+is RFC 1951 (Deflate). Data is only compressed in streamOptimized images, which
+also has grainMarker feature enable. Compression is not used alone, if we
+create a monolithicSparse with header.compressAlgorithm set and write some
+compressed data, VMware won’t read the correct data, it simply read the
+compressed bytes out.</p>
+
+<p>StreamOptimized is used mainly for the purpose of transferring, although it can
+be attached to VM in VMware Workstation and read data normally, writing is
+limited to the unallocated offsets, any overwriting to existing disk sectors
+are silently discarded. This would easily lead to inconsistence, so I think the
+only reasonable use case of streamOptimized is to export some local image to
+this type for upload and download, once the transmission is over, it should be
+converted back to host disk types (such as monolithicSparse or similar), before
+booting the guest system.</p>
+
+<h2>Special Images</h2>
+
+<p>There are image cases not strictly following the specification, but found to
+working with VMware. One of those is Haiku VMDK image (VM mirrors at
+http://haiku-os.org/get-haiku). It is composed of Host Sparse Extent Header +
+Descriptor file + Flat data. Where header fields capacity, gdOffset and
+rgdOffset are zero, and the following descriptor specifies the extent to be
+FLAT pointing to the file itself with offset 128 and the data start from offset
+0×10000.  Using sparse header with flat data is uncommon, and obviously beyond
+definition of the specification. However both VMware and VirtualBox support
+such case. Furthermore, as it is tested, the vmdk file name must be the same
+with the one in descriptor for VMware to be correctly attached, just like how
+descriptor file + separate flat extent work.  There was also a QEMU bug report
+with <a href="http://famz.github.com/blog/2011/07/21/bug-track-issue-with-block-vmdk/">this</a>.</p>
+
+<h2>vmware-mount</h2>
+
+<p>VMware VDDK contains a tool ‘vmware-mount’ that is capable of mounting a
+partition in VMDK disk on the host file system. It uses FUSE to achieve this.
+The internal is introduced <a href="http://famz.github.com/blog/2011/06/15/testing-vmware-mount/">here</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bug track: vSphere 4.x 'Export to OVF' image]]></title>
+    <link href="http://famz.github.com/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image/"/>
+    <updated>2011-07-21T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image</id>
+    <content type="html"><![CDATA[<h2>Bug report:</h2>
+
+<p>from <a href="https://bugzilla.redhat.com/show_bug.cgi?id=548723">https://bugzilla.redhat.com/show_bug.cgi?id=548723</a></p>
+
+<!-- more -->
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>We found that using the vSphere 4.x "Export to OVF" option would
+</span><span class='line'>produce a VMDK file that qemu-img could not convert to raw.
+</span><span class='line'>For older qemu-img the file would be converted to something that was
+</span><span class='line'>not all zeroes, but nevertheless was certainly not a raw disk image.
+</span><span class='line'>For current qemu-img, we get an "Operation not permitted" error which
+</span><span class='line'>is at least better than silent corruption.
+</span><span class='line'>
+</span><span class='line'>Full details are in this bug report:
+</span><span class='line'>
+</span><span class='line'>https://bugzilla.redhat.com/show_bug.cgi?id=548723
+</span><span class='line'>
+</span><span class='line'>Note the links at the top of that bug are broken.  The disk image
+</span><span class='line'>which failed is:
+</span><span class='line'>
+</span><span class='line'>[][http://oirase.annexia.org/tmp/TestLinux-disk1.vmdk]
+</span><span class='line'>
+</span><span class='line'>SHA1: 2c81bae89210b075acc51da9d025935470149d55
+</span><span class='line'>
+</span><span class='line'>[][http://oirase.annexia.org/tmp/TestLinux.ovf]
+</span><span class='line'>
+</span><span class='line'>SHA1: 30831689b8c6f1b1a1fcbb728769b5f71056a580
+</span><span class='line'>
+</span><span class='line'>Rich.</span></code></pre></td></tr></table></div></figure>
+
+
+<hr />
+
+<p>Cause: the exported image is streamOptimized, which has the same header magic
+with monolithicSparse, qemu would attempt to open it, without enough
+verification. But the fields and compression are not handled at all, leading to
+the conversion failure.</p>
+
+<p>This will be fixed with the upcoming <code>streamOptimized</code> support patches.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bug track: Issue with block/vmdk]]></title>
+    <link href="http://famz.github.com/blog/2011/07/21/bug-track-issue-with-block-vmdk/"/>
+    <updated>2011-07-21T00:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/07/21/bug-track-issue-with-block-vmdk</id>
+    <content type="html"><![CDATA[<p>Bug report:</p>
+
+<!-- more -->
+
+
+<blockquote><p>I tried to boot the vmdk generated by the Haiku build system here but it
+aborted.</p>
+
+<p>It seems the header has the capacity field set to 0, to mean that there is no
+embedded grain directory if I understand the vbox sources&#8230;</p>
+
+<p>At least the same image boots perfectly in VBox.</p>
+
+<p>If anyone wants to test :</p>
+
+<p>http://haiku-files.org/vmware/</p>
+
+<p>any image should do.</p>
+
+<p>They are generated by:</p>
+
+<p>http://dev.haiku-os.org/browser/haiku/trunk/src/tools/vmdkimage/vmdkimage.cpp#L303</p>
+
+<p>The mention in vbox:</p>
+
+<p>http://www.virtualbox.org/browser/trunk/src/VBox/Storage/VMDK.cpp#L2796</p>
+
+<p>I might have a closer look at some point but I don&#8217;t know when.</p>
+
+<p>François.</p></blockquote>
+
+<hr />
+
+<p>The haiku vmdk image is special, it is composed of</p>
+
+<pre><code>Host Sparse Extent Header + Descriptor file + Flat data
+</code></pre>
+
+<p>Where header fields capacity, <code>gdOffset</code> and
+<code>rgdOffset</code> are zero, and the following descriptor specifies the extent to be
+FLAT pointing to the file itself with offset 128 and the data start from offset
+0×10000.</p>
+
+<p>Using sparse header with flat data is uncommon, and obviously beyond definition
+of the specification. However both VMware and VirtualBox support such case.
+Furthermore, as it is tested, the vmdk file name must be the same with the one
+in descriptor for VMware to be correctly attached, just like how descriptor
+file + separate flat extent work.</p>
+
+<p>The solution could be:</p>
+
+<p>Test <code>header.capacity</code> when opening, when it is zero (which should never be for
+normal sparse vmdk), abort opening it as normal sparse but instead reopen by
+the descriptor.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Differences between VMDK3 and the specification 'ESX Server Sparse Extent']]></title>
+    <link href="http://famz.github.com/blog/2011/07/03/differences-between-vmdk3-and-the-specification/"/>
+    <updated>2011-07-03T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/07/03/differences-between-vmdk3-and-the-specification</id>
+    <content type="html"><![CDATA[<p>VMDK3 is a format which QEMU has implemented r/w support, it is the only image
+format that VMware Workstation 3 produces, and was updated to what we call
+VMDK4 since Workstation 4.0. The older format is no longer valid in latest
+VMware Workstation versions, so I have to install Workstation 3 to get an image
+sample.</p>
+
+<!-- more -->
+
+
+<p>On the other hand there is a mysterious format found in “VMware Virtual Disk
+Specification 1.1″, called “ESX Server Sparse Extents”. It is not appearing in
+various ESX Server versions (2.0, 3.5 and 4.0), not seen anywhere except the
+Specification.</p>
+
+<p>Those two formats are mentioned here as they have the same magic bytes (“COWD”)
+and image header structure, so we wonder if VMDK3 is alias to ESX Server Sparse
+Extents. What I did was compare the Specification to the image sample I got
+from Workstation 3, and also to VMDK3 code in QEMU block driver. It turns out
+that we do have ready support of this old format, but it differs somewhere from
+how ESX Server Sparse is documented. The major differences are as follows:</p>
+
+<ul>
+<li><p>header.version:</p>
+
+<p>  specification ==1 but vmdk3 == 3</p></li>
+<li><p>header.flags:</p>
+
+<p>  specification == 3 but vmdk3 == 0×1b</p></li>
+<li><p>L2 table entries:</p>
+
+<p>  specification == 4096 but vmdk3 == 512</p></li>
+</ul>
+
+
+<p>That the two header fields vary could explain why look-up table sizes differ,
+and as a result the sector access calculation can’t be constant for two
+formats. The obstacle for us is that these header fields are not documented
+except for the given magic number, and all that we know is the two cases with
+different random numbers.</p>
+
+<p>Finally, the conclusion is that VMDK3 and “ESX Server Sparse Extents” are quite
+similar to each other but not completely identical in several fields. It is
+more reasonable to say they are different versions of the ‘COWD’ magic’d image
+type. We get the former version from very outmoded VMware software, but can’t
+find any implementation of the latter.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bug track: qemu-img convert fails to convert, generates a 512byte file output]]></title>
+    <link href="http://famz.github.com/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert/"/>
+    <updated>2011-07-03T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert</id>
+    <content type="html"><![CDATA[<p>Bug report:</p>
+
+<p>Link: <a href="https://bugs.launchpad.net/qemu/+bug/784977">https://bugs.launchpad.net/qemu/+bug/784977</a></p>
+
+<p>Reported by Andy Brook on 2011-05-19</p>
+
+<!-- more -->
+
+
+<h2>Bug Description</h2>
+
+<blockquote><p>I have a Vmware image, so I have files like &#8216;Ubuntu.vmdk&#8217;, want to convert to VirtualBox .vdi format using qemu, the first stage of extracting the image with &#8216;qemu-img convert Ubuntu.vmdk output.bin&#8217; just generates a 512byte file:
+{quote}</p>
+
+<h1>Disk DescriptorFile</h1>
+
+<p>version=1
+CID=36be9761
+parentCID=ffffffff
+createType=&#8221;twoGbMaxExtentSparse&#8221;</p>
+
+<h1>Extent description</h1>
+
+<p>RW 4192256 SPARSE &#8220;Ubuntu-s001.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s002.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s003.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s004.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s005.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s006.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s007.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s008.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s009.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s010.vmdk&#8221;
+RW 20480 SPARSE &#8220;Ubunt
+{quote}
+Here is the input Ubuntu.vmdk file:
+{quote}</p>
+
+<h1>Disk DescriptorFile</h1>
+
+<p>version=1
+CID=36be9761
+parentCID=ffffffff
+createType=&#8221;twoGbMaxExtentSparse&#8221;</p>
+
+<h1>Extent description</h1>
+
+<p>RW 4192256 SPARSE &#8220;Ubuntu-s001.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s002.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s003.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s004.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s005.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s006.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s007.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s008.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s009.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s010.vmdk&#8221;
+RW 20480 SPARSE &#8220;Ubuntu-s011.vmdk&#8221;</p>
+
+<h1>The Disk Data Base</h1>
+
+<h1>DDB</h1>
+
+<p>ddb.toolsVersion = &#8220;7240&#8221;
+ddb.adapterType = &#8220;lsilogic&#8221;
+ddb.geometry.sectors = &#8220;63&#8221;
+ddb.geometry.heads = &#8220;255&#8221;
+ddb.geometry.cylinders = &#8220;2610&#8221;
+ddb.virtualHWVersion = &#8220;6&#8221;
+{quote}
+No stack trace or other output was found. Anything I can add (other than the 20G VM image to reproduce and I&#8217;ll be happy to provide)</p></blockquote>
+
+<hr />
+
+<p>Cause: This is a typical subformat (<code>twoGbMaxExtentSparse</code>) that VMDK driver of
+current QEMU wouldn’t recognize, so that I believe this Ubuntu.vmdk is treated
+as raw by qemu-img convert.</p>
+
+<p>This format is already supported in qemu-vmdk branch and the supporting is
+expected to be upstreamed soon, where this will be fixed too.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Writing stream optimized VMDK]]></title>
+    <link href="http://famz.github.com/blog/2011/06/29/writing-stream-optimized-vmdk/"/>
+    <updated>2011-06-29T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/06/29/writing-stream-optimized-vmdk</id>
+    <content type="html"><![CDATA[<p>Stream optimized VMDK image allocates minimized space for a compressed cluster,
+which means if there is high compress ratio, a cluster possibly only takes one
+physical sector in the file. Which makes overwriting hard, especially when new
+data needs more sectors than previously allocated.</p>
+
+<!-- more -->
+
+
+<p>Attach the image to VMware and boot the VM to test this format, it seems that
+VMware wouldn’t do write to allocated clusters, but can allocate new cluster to
+save data.</p>
+
+<p>Overwriting existing cluster requires measuring new data size and decide
+whether in-place overwrite is OK, if not we must look for other free space.
+Metadata in VMDK sparse has no such information for sector allocation
+algorithm, so if we want to fully enable writing to stream optimized, sector
+allocation bitmap will be introduced into block state. This should
+significantly increase memory usage and somehow complicate the driver.</p>
+
+<p>Another approach is to allocate each non-inplace at the end of image and leave
+the old allocation unreferenced, which wastes disk space.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Testing vmware-mount]]></title>
+    <link href="http://famz.github.com/blog/2011/06/15/testing-vmware-mount/"/>
+    <updated>2011-06-15T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/06/15/testing-vmware-mount</id>
+    <content type="html"><![CDATA[<p>VMware VDDK contains a tool ‘vmware-mount’ that is capable of mounting a
+partition in VMDK disk. For example if we have a disk image named Minit.vmdk in
+which a Linux Mint is installed. We can examine the partitions with
+vmware-mount command by:</p>
+
+<pre><code>sudo vmware-mount -p Mint.vmdk
+</code></pre>
+
+<p>The output is:</p>
+
+<!-- more -->
+
+
+<pre><code>Nr      Start       Size Type Id Sytem
+-- ---------- ---------- ---- -- ------------------------
+1       2048     192512 BIOS 82 Linux swap
+2     194560   83689472 BIOS 83 Linux
+</code></pre>
+
+<p>Now that we want to mount the second partition, the command is as simple to
+use, just give the file name, partition number and mount point:</p>
+
+<pre><code>sudo vmware-mount Mint.vmdk 2 /mnt/mint
+</code></pre>
+
+<p>Once it succeeds, we can access the vm files under the mount point. Wonderful,
+isn’t it?</p>
+
+<p>Let’s see how it works. Check out system mount points by running</p>
+
+<pre><code>mount | grep /mnt/mint
+</code></pre>
+
+<p>finding the line:</p>
+
+<pre><code>/dev/loop0 on /mnt/mint type ext3 (rw,nosuid,nodev)
+</code></pre>
+
+<p>It’s a loop device, let’s follow it by</p>
+
+<pre><code>losetup -a | grep /dev/loop0
+</code></pre>
+
+<p>seeing:</p>
+
+<pre><code>/dev/loop0: [0014]:2 (/var/run/vmware/fuse/10569954799845303045/flat), offset 99614720
+</code></pre>
+
+<p>Seeing the word <code>fuse</code>, you may guess the file is driven by FUSE. Yes you are
+right, let’s prove it. Check mount again and find another interesting clue, a
+FUSE mount point:</p>
+
+<pre><code>/dev/fuse on /var/run/vmware/fuse/10569954799845303045 type fuse (rw,nosuid,nodev,allow_other)
+</code></pre>
+
+<p>That’s the answer. VMware establishes a FUSE mount point at</p>
+
+<pre><code>/var/run/vmware/fuse/10569954799845303045/
+</code></pre>
+
+<p>Where in it there is only a file ‘flat’ serving as a block representing all
+data in the mounted image file. Access to the file is passed to kernel as FUSE
+request and then to VMware userspace FS server, where the server knows how to
+read/write VMDK to complete the request and return to the caller.
+Generally, the relationship is like this:</p>
+
+<pre><code>Boo, image lost :(
+</code></pre>
+
+<p>Simple yet elegant!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[More About Vmdk Descriptor File]]></title>
+    <link href="http://famz.github.com/blog/2011/06/15/more-about-vmdk-descriptor-file/"/>
+    <updated>2011-06-15T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/06/15/more-about-vmdk-descriptor-file</id>
+    <content type="html"><![CDATA[<p>The VMware behavior on opening VMDK disk is:</p>
+
+<p>Read the descriptor file, if it has magic bytes (“VMDK” or “COWD”) in first 4
+bytes, it’s recognized as monolithic sparse disk, otherwise try to parse the
+file as a text file.</p>
+
+<!-- more -->
+
+
+<p>The text file is a VMDK descriptor file when the first option line (the line
+after leading comment lines and blank lines) gives the value of ‘version’. I.e.
+the line is in the form of ‘version=1′ or ‘version=2′ (only two values are
+recognized as tested).</p>
+
+<p>No extra space or uppercase is accepted, except the cases of:</p>
+
+<pre><code>version=1&lt;some spaces&gt;
+</code></pre>
+
+<p>or</p>
+
+<pre><code>version=1&lt;anything non-numeric&gt;
+</code></pre>
+
+<p>are OK.</p>
+
+<p>Following option and comment lines can be in any order, which has no effect on
+VMware’s opening and manipulating. But whenever there’s a modification from
+VMware (e.g. updating CID), the whole descriptor is regenerated with a fixed
+template, resulting in a format like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Disk DescriptorFile</span>
+</span><span class='line'><span class="nv">version</span><span class="o">=</span>1
+</span><span class='line'><span class="nv">CID</span><span class="o">=</span>fffffffe
+</span><span class='line'><span class="nv">parentCID</span><span class="o">=</span>ffffffff
+</span><span class='line'><span class="nv">createType</span><span class="o">=</span><span class="s2">&quot;twoGbMaxExtentSparse&quot;</span>
+</span><span class='line'><span class="c"># Extent description</span>
+</span><span class='line'>RW 4192256 SPARSE <span class="s2">&quot;test-s001.vmdk&quot;</span>
+</span><span class='line'>...
+</span><span class='line'><span class="c"># The Disk Data Base</span>
+</span><span class='line'><span class="c">#DDB</span>
+</span><span class='line'>ddb.adapterType <span class="o">=</span> <span class="s2">&quot;ide&quot;</span>
+</span><span class='line'>ddb.geometry.sectors <span class="o">=</span> <span class="s2">&quot;63&quot;</span>
+</span><span class='line'>ddb.geometry.heads <span class="o">=</span> <span class="s2">&quot;16&quot;</span>
+</span><span class='line'>ddb.geometry.cylinders <span class="o">=</span> <span class="s2">&quot;10402&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Status Update: Summary of the Week]]></title>
+    <link href="http://famz.github.com/blog/2011/06/10/status-update-summary-of-the-week/"/>
+    <updated>2011-06-10T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/06/10/status-update-summary-of-the-week</id>
+    <content type="html"><![CDATA[<p>Work done this week:</p>
+
+<!-- more -->
+
+
+<ol>
+<li><p>Multi extents subformats support. The code is ready to handle multi extents disks (<code>twoGbMaxExtent*</code> formats)</p></li>
+<li><p>Investigated disk image formats on ESX Server 3.5 and 4.</p>
+
+<p>Downloaded and installed ESX servers on VM, created VM disks and analyzed
+their formats. The conclusion is that neither ESX Server has COWD sparse
+extent, it seems the format described in spec is not widely used nowadays.
+Although the vmdk driver now should support that type extent, but no real
+world image is seen so far for a test.</p></li>
+<li><p>Checking out VDDK. The Virtual Disk Development Kit provides library
+interface for everyday work on various VM disk formats, such as
+create/clone/read/write. And also a set of tools to manage or mount images.
+(The idea of mounting image disk as host OS block device seems a nice use
+case, could this possibly be done through a generic QEMU block driver?
+Qcow2 can be mounted with nbd:
+<a href="http://en.wikipedia.org/wiki/Qcow#Mounting_qcow2_images">http://en.wikipedia.org/wiki/Qcow#Mounting_qcow2_images</a>)</p></li>
+<li><p>Sparse extent compression support. The compression support is added by
+using zlib compress/uncompress interface. The code is already written but
+still need test.</p></li>
+</ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Installing VMware ESX 3.5 on QEMU]]></title>
+    <link href="http://famz.github.com/blog/2011/06/08/installing-vmware-esx-3.5-on-qemu/"/>
+    <updated>2011-06-08T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/06/08/installing-vmware-esx-3.5-on-qemu</id>
+    <content type="html"><![CDATA[<ol>
+<li>Download “ESX Server 3.5.iso”.</li>
+<li><p>Create VM disk:</p>
+
+<p><code>qemu-img create ESX.qcow2 -f qcow2 16G</code></p></li>
+<li><p>Start VM to install from CD (enable KVM to speed up, and give a e1000 nic to
+make sure ESX can support it, otherwise the installation will abort):</p>
+
+<p><code>qemu -enable-kvm ESX.qcow2 -cdrom "ESX Server 3.5.iso" -boot d -net nic,model=e1000</code></p></li>
+<li><p>Select proper options in the wizard, wait for a while until the server’s
+installed.</p></li>
+<li>Reboot and the system will be into the login prompt, log in root with the
+password you set.</li>
+</ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[VMware Virtual Disk Use Cases]]></title>
+    <link href="http://famz.github.com/blog/2011/06/07/vmware-virtual-disk-use-cases/"/>
+    <updated>2011-06-07T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/06/07/vmware-virtual-disk-use-cases</id>
+    <content type="html"><![CDATA[<p>Collecting virtual disk use cases in VMware might be helpful to find what kind
+of support is valuable or useful to VMDK image in QEMU. So I checked out some
+documents today, trying to find something. Besides creating types of disks and
+attach them as block device in guest OSes, there are several topics on VMDK
+images:</p>
+
+<!-- more -->
+
+
+<ul>
+<li><strong>Snapshots</strong></li>
+<li><strong>Defragment disk</strong>
+Like physical disk drives, virtual disks can become fragmented.
+Defragmenting disks rearranges files, programs, and unused space on the
+virtual disk so that programs run faster and files open more quickly.</li>
+<li><strong>Compact disk</strong>
+Compacting a virtual disk reclaims unused space in the virtual disk. If a
+disk has empty space, this process reduces the amount of space the virtual
+disk occupies on the host drive.</li>
+<li><strong>Expand disk</strong>
+Expanding a virtual disk adds storage space to the virtual machine.  Attach
+disk to VM in independent mode: Persistent or Nonpersistent, as modifiable
+or revert to the original state after per VM shutdown.</li>
+<li><strong>Map as a host drive.</strong>
+It is very useful for accessing guest data directly from host OS.</li>
+<li><strong>Stream Optimizing</strong> disk data for transporting.</li>
+</ul>
+
+
+<p>The grain compression feature, doesn’t have much material except for the very
+brief introduction in VMDK specification, and according to a thread in VMware
+community, is said to be not configurable by user and only used when
+“transporting disk files”. As QEMU has already linked to zlib, deflate
+compressing clusters is fairly simple (all that’s needed is a call to
+compress/uncompress).</p>
+
+<p>There’s also a VMware provided Virtual Disk API, which I’ll get into it and see
+if it can serve as a reference for our driver development.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Status Update: multi flat/sparse support]]></title>
+    <link href="http://famz.github.com/blog/2011/06/06/status-update-multi-flat-sparse-support/"/>
+    <updated>2011-06-06T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/06/06/status-update-multi-flat-sparse-support</id>
+    <content type="html"><![CDATA[<p>Lately an updated patch set has been posted to list, which is splitted and
+improved according to Kevin’s instructions, The patches included <code>monolithicFlat</code>
+and <code>monolithicSparse</code> support.</p>
+
+<!-- more -->
+
+
+<p>I have downloaded roughly a dozen of vmware appliances, they have various
+formats like <code>monolithicSparse</code>, <code>twoGbMaxExtentSparse</code>, <code>vmfs</code> and <code>raw</code>. Flat formats
+are hardly used for VM publish and transfering, and also is ESX Server Sparse
+Extent. I have to turn to ESX and figure out how to use it to produce the
+latter.</p>
+
+<p>As we seem only a step away from <code>twoGbMaxExtent{Sparse/Flat}</code> support, I
+decided to take them prioritized and it turns out that under the structure of
+<code>VmdkExtent</code> array, it’s not much work to get it out. By now I have just
+implemented the two formats and we have supported four types in all:</p>
+
+<ul>
+<li><code>monolithicFlat</code></li>
+<li><code>monolithicSparse</code></li>
+<li><code>twoGbMaxExtentFlat</code></li>
+<li><code>twoGbMaxExtentSparse</code></li>
+</ul>
+
+
+<p>Testing with downloaded appliance (such as Ubuntu, Fedora and Mint virtual
+machines), it shows that the format works well.</p>
+
+<p>The cluster compression support and <strong>Stream Optimized Compressed Sparse
+Extents</strong> is delayed because I want to have some real world sample image ahead,
+to prop up the development. I’ll continue to find in vmware appliance directory
+and try more vmware applications to create ones.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Status Update: splitting patches for mono flat]]></title>
+    <link href="http://famz.github.com/blog/2011/06/03/status-update-splitting-patches-for-mono-flat/"/>
+    <updated>2011-06-03T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/06/03/status-update-splitting-patches-for-mono-flat</id>
+    <content type="html"><![CDATA[<p>The big monolithic flat patch will be split into small ones, I have the split
+in mind as:</p>
+
+<!-- more -->
+
+
+<ul>
+<li>add <code>VmdkExtent</code>, and change any code that use the <code>BDRVVmdkState</code> structure to a single <code>VmdkExtent</code> manner.</li>
+<li>probe <code>monolithicFlat</code> image.</li>
+<li><code>vmdk_open</code> for <code>monolithicFlat</code>.</li>
+<li><code>desc_offset</code> field in <code>BDRVVmdkState</code>.</li>
+<li><code>vmdk_close</code> for both formats.</li>
+<li><code>vmdk_read</code> and <code>vmdk_write</code> for <code>monolithicFlat</code>.</li>
+<li><code>vmdk_create</code> and <code>vmdk_create_options</code> for <code>monolithicFlat</code>.</li>
+<li><code>vmdk_flush</code> for both formats.</li>
+<li><code>vmdk_is_allocated</code> for both formats.</li>
+<li><code>update_cid</code> bug fix</li>
+<li> indent, space and line width fix</li>
+<li>bug fix: floor of offset in the function <code>get_whole_cluster</code></li>
+</ul>
+
+
+<p>The first patch is still very big, because the structure change influences
+almost every function in the file. But fortunately it’s not very hard to split
+by hand. I’ve had it done today and the following patches should be relatively
+shorter, hope to finish it in Fri.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Status update: ESX Server Sparse Extent]]></title>
+    <link href="http://famz.github.com/blog/2011/06/02/status-update-esx-server-sparse-extent/"/>
+    <updated>2011-06-02T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/06/02/status-update-esx-server-sparse-extent</id>
+    <content type="html"><![CDATA[<p>The <strong>ESX Server Sparse Extent</strong> has the same magic number and very similar header
+fields, with the existing <code>VMDK3Header</code>. Most code can be reused to add support
+for this format. Only a few fields are extra to <code>VMDK3Header</code>, they are used to
+save the extent name/description and detect the unclean shutdown.</p>
+
+<!-- more -->
+
+
+<p>The COWDHeader structure is like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">version</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">flags</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">disk_sectors</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">granularity</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">l1dir_offset</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">l1dir_size</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">free_sectors</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">union</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">struct</span> <span class="p">{</span>
+</span><span class='line'>            <span class="kt">uint32_t</span> <span class="n">cylinders</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">uint32_t</span> <span class="n">heads</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">uint32_t</span> <span class="n">sectors</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span> <span class="n">root</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">struct</span> <span class="p">{</span>
+</span><span class='line'>            <span class="kt">char</span>     <span class="n">parentFileName</span><span class="p">[</span><span class="n">COWDISK_MAX_PARENT_FILELEN</span><span class="p">];</span>
+</span><span class='line'>            <span class="kt">uint32_t</span> <span class="n">parentGeneration</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span> <span class="n">child</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span> <span class="n">u</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span>       <span class="n">generation</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span>           <span class="n">name</span><span class="p">[</span><span class="n">COWDISK_MAX_NAME_LEN</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">char</span>           <span class="n">description</span><span class="p">[</span><span class="n">COWDISK_MAX_DESC_LEN</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">uint32_t</span>       <span class="n">savedGeneration</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span>           <span class="n">reserved</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">uint32_t</span>       <span class="n">uncleanShutdown</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span>           <span class="n">padding</span><span class="p">[</span><span class="mi">396</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">packed</span><span class="p">))</span> <span class="n">COWDHeader</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So, only tiny changes are needed to handle this header. Now what we need is to
+collect real world images to test its support.</p>
+
+<p>PS: There’s another important extent type: vmfs. Currently there’s no open
+specification for it. There’s an open sourcey driver:
+[http://code.google.com/p/vmfs/][]
+The driver can do nothing to write to vmfs, because it is implemented by
+reverse engineering vmfs files. This factor makes adding this format to our
+driver a hard job.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Managing dev code and patch series]]></title>
+    <link href="http://famz.github.com/blog/2011/05/31/managing-dev-code-and-patch-series/"/>
+    <updated>2011-05-31T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/05/31/managing-dev-code-and-patch-series</id>
+    <content type="html"><![CDATA[<p>These are notes of chatting with Kevin on managing patch in qemu development.</p>
+
+<blockquote><p>It is a practice that code submitted to qemu are split to small patches, so
+that they are easy to review. If the code to submit is long, it will be
+difficult to separate at the end of the development. A better approach is to
+dev along the will-be series of patch, i.e. when developing a new part create
+one commit for each patch that will be submitted in the end. Every commit is a
+logical change, if need to adjust anything on it, we can use rebase command of
+git.</p>
+
+<p>So the important part to keep handling things easy is that never mix two
+logically different things in one commit. Changing commits afterwards, or
+merging them is easy, just splitting is hard.</p></blockquote>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Patch: monolithic flat image support]]></title>
+    <link href="http://famz.github.com/blog/2011/05/30/patch-monolithic-flat-image-support/"/>
+    <updated>2011-05-30T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/05/30/patch-monolithic-flat-image-support</id>
+    <content type="html"><![CDATA[<p>VMDK multiple file images can not be recognized for now. This patch is adding
+monolithic flat support to it, that is the image type with two files, one text
+descriptor file and a plain data file. This type of image can be created in
+VMWare, with the options “allocate all disk space now” and “store virtual disk
+as a single file” checked.</p>
+
+<p>A <code>VmdkExtent</code> structure is introduced to hold the image <strong>extent</strong> information,
+which makes further adding multi extents support of VMDK easy. An image
+creating option “flat” is added for creating flat (preallocated) image.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Status Update: mono flat almost ready]]></title>
+    <link href="http://famz.github.com/blog/2011/05/28/status-update-mono-flat-almost-ready/"/>
+    <updated>2011-05-28T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/05/28/status-update-mono-flat-almost-ready</id>
+    <content type="html"><![CDATA[<p>After one week’s work, our mono-flat support is now bound into vmdk. The
+support includes <code>probe</code>, <code>open</code>, <code>read</code>, <code>write</code>, <code>is_allocated</code> and also
+<code>backing_hd</code> of <code>monolithicFlat</code> type images.</p>
+
+<!-- more -->
+
+
+<p>Read/write are using the same routine with <code>get_cluster_offset</code> handling address
+lookup. We can observe flat extent as a very large cluster, this view provides
+inconsistent between flat and sparse extents. When look up an offset within
+either format, we need a <code>cluster_offset</code> and <code>index_in_cluster</code>. So for flat the
+<code>cluster_offset</code> is 0 and <code>index_in_cluster</code> is the sector index in the whole
+extent.</p>
+
+<p>There’s a bug that fails <code>qemu-iotest 019</code>(which writes to image that has
+parent). The cause is that when allocating cluster that is not present,
+<code>get_whole_cluster</code> reads from parent image, with an offset that is not aligned
+to cluster, and write to the newly allocated cluster.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'>    <span class="n">ret</span> <span class="o">=</span> <span class="n">bdrv_read</span><span class="p">(</span><span class="n">bs</span><span class="o">-&gt;</span><span class="n">backing_hd</span><span class="p">,</span> <span class="n">offset</span> <span class="o">&gt;&gt;</span> <span class="mi">9</span><span class="p">,</span> <span class="n">whole_grain</span><span class="p">,</span>
+</span><span class='line'>            <span class="n">extent</span><span class="o">-&gt;</span><span class="n">cluster_sectors</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//Write grain only into the active image</span>
+</span><span class='line'>    <span class="n">ret</span> <span class="o">=</span> <span class="n">bdrv_write</span><span class="p">(</span><span class="n">extent</span><span class="o">-&gt;</span><span class="n">file</span><span class="p">,</span> <span class="n">cluster_offset</span><span class="p">,</span> <span class="n">whole_grain</span><span class="p">,</span>
+</span><span class='line'>            <span class="n">extent</span><span class="o">-&gt;</span><span class="n">cluster_sectors</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is obviously bug if offset is 512, and <code>cluster_offset</code> points to #0. To
+correct it only one line is added ahead:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'>        <span class="c1">// floor offset to cluster</span>
+</span><span class='line'>        <span class="n">offset</span> <span class="o">-=</span> <span class="n">offset</span> <span class="o">%</span> <span class="p">(</span><span class="n">extent</span><span class="o">-&gt;</span><span class="n">cluster_sectors</span> <span class="o">*</span> <span class="mi">512</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&#8217;s it.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Status Update: mono-sparse is recovering]]></title>
+    <link href="http://famz.github.com/blog/2011/05/26/status-update-monosparse-is-recovering/"/>
+    <updated>2011-05-26T02:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/05/26/status-update-monosparse-is-recovering</id>
+    <content type="html"><![CDATA[<p>So far mono flat support is almost complete, and I’ve started to recover
+mono-sparse operations. Open and read are basically back, tomorrow write should
+be finished too.</p>
+
+<p>After coding these two formats’ support I’ll turn to build more useful test
+suites. The qemu-io commands ‘read’ and ‘write’ might need to be enhanced to
+support dump in/out external files, in order to power up auto test scripts.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[preview Image Disk Size Counted by Block Driver]]></title>
+    <link href="http://famz.github.com/blog/2011/05/26/image-disk-size-counted-by-block-driver/"/>
+    <updated>2011-05-26T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/05/26/image-disk-size-counted-by-block-driver</id>
+    <content type="html"><![CDATA[<p>In multiple file vmdk disk, qemu-img info doesn’t count any file allocation
+other than descriptor file (the file pointed by <code>bs-&gt;file</code>). A field is added to
+BlockDriverState to hold actual disk size if block driver itself has its method
+to count the disk size. If the field is not set by block driver, qemu-img will
+still query the file size from OS, and ignore the ‘zero’.</p>
+
+<p>The new field is</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int64_t</span> <span class="n">disk_size</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And now used by vmdk driver to pass the sum of file sizes to qemu-img.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Status Update: vmdk open and qemu-img info on Multi File Images]]></title>
+    <link href="http://famz.github.com/blog/2011/05/25/status-update-vmdk_open-and-qemu-img-info/"/>
+    <updated>2011-05-25T01:00:00+08:00</updated>
+    <id>http://famz.github.com/blog/2011/05/25/status-update-vmdk_open-and-qemu-img-info</id>
+    <content type="html"><![CDATA[<p>The BlockDriver of vmdk is defined as</p>
+
+<!-- more -->
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="n">BlockDriver</span> <span class="n">bdrv_vmdk</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">format_name</span> <span class="o">=</span> <span class="s">&quot;vmdk&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">instance_size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">BDRVVmdkState</span><span class="p">),</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_probe</span> <span class="o">=</span> <span class="n">vmdk_probe</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_open</span> <span class="o">=</span> <span class="n">vmdk_open</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_read</span> <span class="o">=</span> <span class="n">vmdk_read</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_write</span> <span class="o">=</span> <span class="n">vmdk_write</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_close</span> <span class="o">=</span> <span class="n">vmdk_close</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_create</span> <span class="o">=</span> <span class="n">vmdk_create</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_flush</span> <span class="o">=</span> <span class="n">vmdk_flush</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">.</span><span class="n">bdrv_is_allocated</span> <span class="o">=</span> <span class="n">vmdk_is_allocated</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">.</span><span class="n">create_options</span> <span class="o">=</span> <span class="n">vmdk_create_options</span><span class="p">,</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>Bdrv_*</code> functions are to be modified to add support of new formats. Now
+probe and open are ready to process mono flat images, others are left dummy
+functions for now. And original code for mono sparse format is temporarily
+commented out because there are a number of trivial changes to migrate them to
+new state structure. I think firstly enable mono flat handling before sparse is
+a smoother start.</p>
+
+<p>The remaining work of today and tomorrow are the six other functions (read,
+write, close, etc.), which are quite plain ones too.</p>
+
+<p>After implementing <code>bdrv_open</code>, here comes one issue in qemu-img.c. When running
+qemu-img info on image file, a “file size” is printed where the value is how
+host system thinks of the file size. This value generally represents how much
+host OS file system space the VM disk takes. In our case of multiple file as
+one VM disk, only descriptor file’s size is counted by
+<code>qemu-img.c:get_allocated_file_size</code>. If we want to show the total size of
+multiple file image, this logic has to be updated.</p>
+]]></content>
+  </entry>
+  
+</feed>

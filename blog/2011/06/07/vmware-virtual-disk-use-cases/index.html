@@ -1,0 +1,175 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>VMware Virtual Disk Use Cases - Virt Block</title>
+	<meta name="author" content="Fam Zheng">
+
+	
+	<meta name="description" content="Collecting virtual disk use cases in VMware might be helpful to find what kind
+of support is valuable or useful to VMDK image in QEMU. So I checked &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Virt Block" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Virt Block</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:famz.github.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:famz.github.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">VMware Virtual Disk Use Cases</h2>
+	<div class="entry-content"><p>Collecting virtual disk use cases in VMware might be helpful to find what kind
+of support is valuable or useful to VMDK image in QEMU. So I checked out some
+documents today, trying to find something. Besides creating types of disks and
+attach them as block device in guest OSes, there are several topics on VMDK
+images:</p>
+
+<!-- more -->
+
+
+<ul>
+<li><strong>Snapshots</strong></li>
+<li><strong>Defragment disk</strong>
+Like physical disk drives, virtual disks can become fragmented.
+Defragmenting disks rearranges files, programs, and unused space on the
+virtual disk so that programs run faster and files open more quickly.</li>
+<li><strong>Compact disk</strong>
+Compacting a virtual disk reclaims unused space in the virtual disk. If a
+disk has empty space, this process reduces the amount of space the virtual
+disk occupies on the host drive.</li>
+<li><strong>Expand disk</strong>
+Expanding a virtual disk adds storage space to the virtual machine.  Attach
+disk to VM in independent mode: Persistent or Nonpersistent, as modifiable
+or revert to the original state after per VM shutdown.</li>
+<li><strong>Map as a host drive.</strong>
+It is very useful for accessing guest data directly from host OS.</li>
+<li><strong>Stream Optimizing</strong> disk data for transporting.</li>
+</ul>
+
+
+<p>The grain compression feature, doesn’t have much material except for the very
+brief introduction in VMDK specification, and according to a thread in VMware
+community, is said to be not configurable by user and only used when
+“transporting disk files”. As QEMU has already linked to zlib, deflate
+compressing clusters is fairly simple (all that’s needed is a call to
+compress/uncompress).</p>
+
+<p>There’s also a VMware provided Virtual Disk API, which I’ll get into it and see
+if it can serve as a reference for our driver development.</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-07T01:00:00+08:00" pubdate data-updated="true">Jun 7<span>th</span>, 2011</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/gsoc/'>gsoc</a>
+
+
+</div>
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
+
+    Fam Zheng
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

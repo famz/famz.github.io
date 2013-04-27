@@ -1,0 +1,213 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Status update: ESX Server Sparse Extent - Virt Block</title>
+	<meta name="author" content="Fam Zheng">
+
+	
+	<meta name="description" content="The ESX Server Sparse Extent has the same magic number and very similar header
+fields, with the existing VMDK3Header. Most code can be reused to add &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Virt Block" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Virt Block</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:famz.github.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:famz.github.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Status Update: ESX Server Sparse Extent</h2>
+	<div class="entry-content"><p>The <strong>ESX Server Sparse Extent</strong> has the same magic number and very similar header
+fields, with the existing <code>VMDK3Header</code>. Most code can be reused to add support
+for this format. Only a few fields are extra to <code>VMDK3Header</code>, they are used to
+save the extent name/description and detect the unclean shutdown.</p>
+
+<!-- more -->
+
+
+<p>The COWDHeader structure is like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">version</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">flags</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">disk_sectors</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">granularity</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">l1dir_offset</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">l1dir_size</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">free_sectors</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">union</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">struct</span> <span class="p">{</span>
+</span><span class='line'>            <span class="kt">uint32_t</span> <span class="n">cylinders</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">uint32_t</span> <span class="n">heads</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">uint32_t</span> <span class="n">sectors</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span> <span class="n">root</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">struct</span> <span class="p">{</span>
+</span><span class='line'>            <span class="kt">char</span>     <span class="n">parentFileName</span><span class="p">[</span><span class="n">COWDISK_MAX_PARENT_FILELEN</span><span class="p">];</span>
+</span><span class='line'>            <span class="kt">uint32_t</span> <span class="n">parentGeneration</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span> <span class="n">child</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span> <span class="n">u</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span>       <span class="n">generation</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span>           <span class="n">name</span><span class="p">[</span><span class="n">COWDISK_MAX_NAME_LEN</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">char</span>           <span class="n">description</span><span class="p">[</span><span class="n">COWDISK_MAX_DESC_LEN</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">uint32_t</span>       <span class="n">savedGeneration</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span>           <span class="n">reserved</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">uint32_t</span>       <span class="n">uncleanShutdown</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span>           <span class="n">padding</span><span class="p">[</span><span class="mi">396</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">packed</span><span class="p">))</span> <span class="n">COWDHeader</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So, only tiny changes are needed to handle this header. Now what we need is to
+collect real world images to test its support.</p>
+
+<p>PS: There’s another important extent type: vmfs. Currently there’s no open
+specification for it. There’s an open sourcey driver:
+[http://code.google.com/p/vmfs/][]
+The driver can do nothing to write to vmfs, because it is implemented by
+reverse engineering vmfs files. This factor makes adding this format to our
+driver a hard job.</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-02T01:00:00+08:00" pubdate data-updated="true">Jun 2<span>nd</span>, 2011</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/gsoc/'>gsoc</a>
+
+
+</div>
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
+
+    Fam Zheng
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

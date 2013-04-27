@@ -1,0 +1,203 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>How QEMU Block Driver Works - Virt Block</title>
+	<meta name="author" content="Fam Zheng">
+
+	
+	<meta name="description" content="Preface Today is the first day of GSoC 2011. I’m starting working on improving VMDK
+support of QEMU block driver. The most important thing before I &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Virt Block" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Virt Block</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:famz.github.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:famz.github.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">How QEMU Block Driver Works</h2>
+	<div class="entry-content"><h1>Preface</h1>
+
+<p>Today is the first day of GSoC 2011. I’m starting working on improving VMDK
+support of QEMU block driver. The most important thing before I can code is to
+understand well how QEMU block driver works. So here a very basic description
+of QEMU block driver code structure is given.</p>
+
+<!-- more -->
+
+
+<h1>Overview</h1>
+
+<p>In the source tree dir ‘block/’ there are quite a few files, each is a block
+driver and is used to access a particular type of device, format or protocol.
+E.g. raw-{posix, win32}.c are drivers for local files. All these drivers are
+self-registered and runtime instanced by block.c. Before going to the driver
+internals, let’s have a look at how block.c uses the drivers.</p>
+
+<h1>Example</h1>
+
+<p>Let’s go with a very simple example, assuming that there is an QED image:
+/media/F/VM/test.qed, and we run qemu-img info /media/F/VM/test.qed to query
+the info. The program successfully get what we want:</p>
+
+<p>image: /media/F/VM/test.qed file format: qed virtual size: 32G (34359738368
+bytes) disk size: 2.3G cluster_size: 65536</p>
+
+<h1>Explanation</h1>
+
+<p>So what happened during the program progress? At first qemu-img.c only gets
+a pathname string “/media/F/VM/test.qed“, and it calls ‘block.c:
+bdrv_open()‘ with it, everything is done there. In block.c, a protocol is
+found for the actual IO of image file. As it is a common disk file, the
+basic protocal “file” is used, which is a driver implemented in
+block/raw-{posix, win32}.c. Using the protocal driver, metadata or magic
+number is read to probe for the possible driver in a traverse through all
+drivers. As long as a proper driver is found, it is instanced to handle the
+image file and become responsible to retrieve any concrete information
+(that we saw from qemu-img output).</p>
+
+<p>Each driver instance contains a set of operations (function pointers) and
+two kinds of data holding the instance state, the common data and the
+driver specific data. The operation and common data structures are defined
+in block_int.h, they are struct BlockDriver and struct BlockDriverState.
+The driver specific data structures are defined in each driver
+implementation .c files in block/. For example struct BDRVVmdkState in
+block/vmdk.c. The BlockDriverState structure is the main struct for a
+driver instance, inside which there are pointers to BlockDriver (.drv) and
+specific state data (.opaque). So every time a driver instance is accessed,
+a BlockDriverState structure pointer is passed.</p>
+
+<p>Having BlockDriverState in hand, it becomes easy to figure out how block
+driver works, calling functions in BlockDriver can make vmdk driver to
+perform various work (probe, open or rw the image, or even creating an
+initial image file), where driver further access the protocol driver for
+IO. The protocol driver instance is save in .file field, which is also a
+BlockDriverState. We can see here the driver is cascaded, this is also the
+case for backing file support, which in theory make it possible that one
+kind of image format use another format as its backing file.</p>
+
+<h1>Conclusion</h1>
+
+<p>QEMU block driver is designed very modular, in order to improve some format
+support, the needed modification can be very local. The overall process of
+block device handling is hidden from the driver implementation, as a result
+device drivers are considerably maintainable.</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-05-23T01:00:00+08:00" pubdate data-updated="true">May 23<span>rd</span>, 2011</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/gsoc/'>gsoc</a>
+
+
+</div>
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
+
+    Fam Zheng
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,216 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Bug track: qemu-img convert fails to convert, generates a 512byte file output - Virt Block</title>
+	<meta name="author" content="Fam Zheng">
+
+	
+	<meta name="description" content="Bug report: Link: https://bugs.launchpad.net/qemu/+bug/784977 Reported by Andy Brook on 2011-05-19 Bug Description I have a Vmware image, so I have &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Virt Block" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">Virt Block</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:famz.github.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:famz.github.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Bug Track: Qemu-img Convert Fails to Convert, Generates a 512byte File Output</h2>
+	<div class="entry-content"><p>Bug report:</p>
+
+<p>Link: <a href="https://bugs.launchpad.net/qemu/+bug/784977">https://bugs.launchpad.net/qemu/+bug/784977</a></p>
+
+<p>Reported by Andy Brook on 2011-05-19</p>
+
+<!-- more -->
+
+
+<h2>Bug Description</h2>
+
+<blockquote><p>I have a Vmware image, so I have files like &#8216;Ubuntu.vmdk&#8217;, want to convert to VirtualBox .vdi format using qemu, the first stage of extracting the image with &#8216;qemu-img convert Ubuntu.vmdk output.bin&#8217; just generates a 512byte file:
+{quote}</p>
+
+<h1>Disk DescriptorFile</h1>
+
+<p>version=1
+CID=36be9761
+parentCID=ffffffff
+createType=&#8221;twoGbMaxExtentSparse&#8221;</p>
+
+<h1>Extent description</h1>
+
+<p>RW 4192256 SPARSE &#8220;Ubuntu-s001.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s002.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s003.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s004.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s005.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s006.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s007.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s008.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s009.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s010.vmdk&#8221;
+RW 20480 SPARSE &#8220;Ubunt
+{quote}
+Here is the input Ubuntu.vmdk file:
+{quote}</p>
+
+<h1>Disk DescriptorFile</h1>
+
+<p>version=1
+CID=36be9761
+parentCID=ffffffff
+createType=&#8221;twoGbMaxExtentSparse&#8221;</p>
+
+<h1>Extent description</h1>
+
+<p>RW 4192256 SPARSE &#8220;Ubuntu-s001.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s002.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s003.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s004.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s005.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s006.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s007.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s008.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s009.vmdk&#8221;
+RW 4192256 SPARSE &#8220;Ubuntu-s010.vmdk&#8221;
+RW 20480 SPARSE &#8220;Ubuntu-s011.vmdk&#8221;</p>
+
+<h1>The Disk Data Base</h1>
+
+<h1>DDB</h1>
+
+<p>ddb.toolsVersion = &#8220;7240&#8221;
+ddb.adapterType = &#8220;lsilogic&#8221;
+ddb.geometry.sectors = &#8220;63&#8221;
+ddb.geometry.heads = &#8220;255&#8221;
+ddb.geometry.cylinders = &#8220;2610&#8221;
+ddb.virtualHWVersion = &#8220;6&#8221;
+{quote}
+No stack trace or other output was found. Anything I can add (other than the 20G VM image to reproduce and I&#8217;ll be happy to provide)</p></blockquote>
+
+<hr />
+
+<p>Cause: This is a typical subformat (<code>twoGbMaxExtentSparse</code>) that VMDK driver of
+current QEMU wouldn’t recognize, so that I believe this Ubuntu.vmdk is treated
+as raw by qemu-img convert.</p>
+
+<p>This format is already supported in qemu-vmdk branch and the supporting is
+expected to be upstreamed soon, where this will be fixed too.</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-07-03T01:00:00+08:00" pubdate data-updated="true">Jul 3<span>rd</span>, 2011</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/gsoc/'>gsoc</a>
+
+
+</div>
+	
+</div></article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
+
+    Fam Zheng
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>
