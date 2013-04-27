@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Virt Block]]></title>
-  <link href="http://famz.github.com/atom.xml" rel="self"/>
-  <link href="http://famz.github.com/"/>
-  <updated>2013-04-27T17:06:13+08:00</updated>
-  <id>http://famz.github.com/</id>
+  <link href="http://famz.github.io/atom.xml" rel="self"/>
+  <link href="http://famz.github.io/"/>
+  <updated>2013-04-27T17:20:16+08:00</updated>
+  <id>http://famz.github.io/</id>
   <author>
     <name><![CDATA[Fam Zheng]]></name>
     <email><![CDATA[feiran.zheng@redhat.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Comments on VMDK formats]]></title>
-    <link href="http://famz.github.com/blog/2011/08/19/comments-on-vmdk-formats/"/>
+    <link href="http://famz.github.io/blog/2011/08/19/comments-on-vmdk-formats/"/>
     <updated>2011-08-19T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/08/19/comments-on-vmdk-formats</id>
+    <id>http://famz.github.io/blog/2011/08/19/comments-on-vmdk-formats</id>
     <content type="html"><![CDATA[<p>To sum up part of the work in GSoC 2011, this post talks about some facts of
 real-world VMDK format, which is not quite well documented in the official
 Specification <a href="http://www.vmware.com/app/vmdk/?src=vmdk">Virtual Disk Format
@@ -37,8 +37,8 @@ descriptor file, don’t hesitate to follow the structure of the sample in the
 specification, otherwise there are at least first two lines shouldn’t be moved
 or mutated, because the first non-comment line “version=1″ is what makes a de
 facto recognition criteria according to VMware Workstation. You can find the
-detail in <a href="http://famz.github.com/blog/2011/06/15/more-about-vmdk-descriptor-file/">this</a> and
-<a href="http://famz.github.com/blog/2011/05/23/vmdk-support-probing-mono-flat/">this</a> post.</p>
+detail in <a href="http://famz.github.io/blog/2011/06/15/more-about-vmdk-descriptor-file/">this</a> and
+<a href="http://famz.github.io/blog/2011/05/23/vmdk-support-probing-mono-flat/">this</a> post.</p>
 
 <h2>ESX Server Sparse Extent and VMDK3</h2>
 
@@ -52,7 +52,7 @@ type, it might be an alias of old VMDK3 (which is only used before VMware
 workstation 4.0 and no longer supported in VMware Workstation 5 and newer
 versions), and it is not seen anywhere else except the specification. However
 there are difference between VMDK3 and ESX Server Sparse Extent, it’s discussed
-in details <a href="http://famz.github.com/blog/2011/07/03/differences-between-vmdk3-and-the-specification/">here</a></p>
+in details <a href="http://famz.github.io/blog/2011/07/03/differences-between-vmdk3-and-the-specification/">here</a></p>
 
 <h2>About createTypes</h2>
 
@@ -104,21 +104,21 @@ definition of the specification. However both VMware and VirtualBox support
 such case. Furthermore, as it is tested, the vmdk file name must be the same
 with the one in descriptor for VMware to be correctly attached, just like how
 descriptor file + separate flat extent work.  There was also a QEMU bug report
-with <a href="http://famz.github.com/blog/2011/07/21/bug-track-issue-with-block-vmdk/">this</a>.</p>
+with <a href="http://famz.github.io/blog/2011/07/21/bug-track-issue-with-block-vmdk/">this</a>.</p>
 
 <h2>vmware-mount</h2>
 
 <p>VMware VDDK contains a tool ‘vmware-mount’ that is capable of mounting a
 partition in VMDK disk on the host file system. It uses FUSE to achieve this.
-The internal is introduced <a href="http://famz.github.com/blog/2011/06/15/testing-vmware-mount/">here</a>.</p>
+The internal is introduced <a href="http://famz.github.io/blog/2011/06/15/testing-vmware-mount/">here</a>.</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Bug track: vSphere 4.x 'Export to OVF' image]]></title>
-    <link href="http://famz.github.com/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image/"/>
+    <link href="http://famz.github.io/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image/"/>
     <updated>2011-07-21T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image</id>
+    <id>http://famz.github.io/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image</id>
     <content type="html"><![CDATA[<h2>Bug report:</h2>
 
 <p>from <a href="https://bugzilla.redhat.com/show_bug.cgi?id=548723">https://bugzilla.redhat.com/show_bug.cgi?id=548723</a></p>
@@ -189,9 +189,9 @@ the conversion failure.</p>
   
   <entry>
     <title type="html"><![CDATA[Bug track: Issue with block/vmdk]]></title>
-    <link href="http://famz.github.com/blog/2011/07/21/bug-track-issue-with-block-vmdk/"/>
+    <link href="http://famz.github.io/blog/2011/07/21/bug-track-issue-with-block-vmdk/"/>
     <updated>2011-07-21T00:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/07/21/bug-track-issue-with-block-vmdk</id>
+    <id>http://famz.github.io/blog/2011/07/21/bug-track-issue-with-block-vmdk</id>
     <content type="html"><![CDATA[<p>Bug report:</p>
 
 <!-- more -->
@@ -251,9 +251,9 @@ the descriptor.</p>
   
   <entry>
     <title type="html"><![CDATA[Differences between VMDK3 and the specification 'ESX Server Sparse Extent']]></title>
-    <link href="http://famz.github.com/blog/2011/07/03/differences-between-vmdk3-and-the-specification/"/>
+    <link href="http://famz.github.io/blog/2011/07/03/differences-between-vmdk3-and-the-specification/"/>
     <updated>2011-07-03T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/07/03/differences-between-vmdk3-and-the-specification</id>
+    <id>http://famz.github.io/blog/2011/07/03/differences-between-vmdk3-and-the-specification</id>
     <content type="html"><![CDATA[<p>VMDK3 is a format which QEMU has implemented r/w support, it is the only image
 format that VMware Workstation 3 produces, and was updated to what we call
 VMDK4 since Workstation 4.0. The older format is no longer valid in latest
@@ -304,9 +304,9 @@ find any implementation of the latter.</p>
   
   <entry>
     <title type="html"><![CDATA[Bug track: qemu-img convert fails to convert, generates a 512byte file output]]></title>
-    <link href="http://famz.github.com/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert/"/>
+    <link href="http://famz.github.io/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert/"/>
     <updated>2011-07-03T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert</id>
+    <id>http://famz.github.io/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert</id>
     <content type="html"><![CDATA[<p>Bug report:</p>
 
 <p>Link: <a href="https://bugs.launchpad.net/qemu/+bug/784977">https://bugs.launchpad.net/qemu/+bug/784977</a></p>
@@ -392,9 +392,9 @@ expected to be upstreamed soon, where this will be fixed too.</p>
   
   <entry>
     <title type="html"><![CDATA[Writing stream optimized VMDK]]></title>
-    <link href="http://famz.github.com/blog/2011/06/29/writing-stream-optimized-vmdk/"/>
+    <link href="http://famz.github.io/blog/2011/06/29/writing-stream-optimized-vmdk/"/>
     <updated>2011-06-29T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/06/29/writing-stream-optimized-vmdk</id>
+    <id>http://famz.github.io/blog/2011/06/29/writing-stream-optimized-vmdk</id>
     <content type="html"><![CDATA[<p>Stream optimized VMDK image allocates minimized space for a compressed cluster,
 which means if there is high compress ratio, a cluster possibly only takes one
 physical sector in the file. Which makes overwriting hard, especially when new
@@ -421,9 +421,9 @@ the old allocation unreferenced, which wastes disk space.</p>
   
   <entry>
     <title type="html"><![CDATA[Testing vmware-mount]]></title>
-    <link href="http://famz.github.com/blog/2011/06/15/testing-vmware-mount/"/>
+    <link href="http://famz.github.io/blog/2011/06/15/testing-vmware-mount/"/>
     <updated>2011-06-15T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/06/15/testing-vmware-mount</id>
+    <id>http://famz.github.io/blog/2011/06/15/testing-vmware-mount</id>
     <content type="html"><![CDATA[<p>VMware VDDK contains a tool ‘vmware-mount’ that is capable of mounting a
 partition in VMDK disk. For example if we have a disk image named Minit.vmdk in
 which a Linux Mint is installed. We can examine the partitions with
@@ -499,9 +499,9 @@ Generally, the relationship is like this:</p>
   
   <entry>
     <title type="html"><![CDATA[More About Vmdk Descriptor File]]></title>
-    <link href="http://famz.github.com/blog/2011/06/15/more-about-vmdk-descriptor-file/"/>
+    <link href="http://famz.github.io/blog/2011/06/15/more-about-vmdk-descriptor-file/"/>
     <updated>2011-06-15T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/06/15/more-about-vmdk-descriptor-file</id>
+    <id>http://famz.github.io/blog/2011/06/15/more-about-vmdk-descriptor-file</id>
     <content type="html"><![CDATA[<p>The VMware behavior on opening VMDK disk is:</p>
 
 <p>Read the descriptor file, if it has magic bytes (“VMDK” or “COWD”) in first 4
@@ -568,9 +568,9 @@ template, resulting in a format like:</p>
   
   <entry>
     <title type="html"><![CDATA[Status Update: Summary of the Week]]></title>
-    <link href="http://famz.github.com/blog/2011/06/10/status-update-summary-of-the-week/"/>
+    <link href="http://famz.github.io/blog/2011/06/10/status-update-summary-of-the-week/"/>
     <updated>2011-06-10T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/06/10/status-update-summary-of-the-week</id>
+    <id>http://famz.github.io/blog/2011/06/10/status-update-summary-of-the-week</id>
     <content type="html"><![CDATA[<p>Work done this week:</p>
 
 <!-- more -->
@@ -602,9 +602,9 @@ still need test.</p></li>
   
   <entry>
     <title type="html"><![CDATA[Installing VMware ESX 3.5 on QEMU]]></title>
-    <link href="http://famz.github.com/blog/2011/06/08/installing-vmware-esx-3.5-on-qemu/"/>
+    <link href="http://famz.github.io/blog/2011/06/08/installing-vmware-esx-3.5-on-qemu/"/>
     <updated>2011-06-08T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/06/08/installing-vmware-esx-3.5-on-qemu</id>
+    <id>http://famz.github.io/blog/2011/06/08/installing-vmware-esx-3.5-on-qemu</id>
     <content type="html"><![CDATA[<ol>
 <li>Download “ESX Server 3.5.iso”.</li>
 <li><p>Create VM disk:</p>
@@ -625,9 +625,9 @@ password you set.</li>
   
   <entry>
     <title type="html"><![CDATA[VMware Virtual Disk Use Cases]]></title>
-    <link href="http://famz.github.com/blog/2011/06/07/vmware-virtual-disk-use-cases/"/>
+    <link href="http://famz.github.io/blog/2011/06/07/vmware-virtual-disk-use-cases/"/>
     <updated>2011-06-07T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/06/07/vmware-virtual-disk-use-cases</id>
+    <id>http://famz.github.io/blog/2011/06/07/vmware-virtual-disk-use-cases</id>
     <content type="html"><![CDATA[<p>Collecting virtual disk use cases in VMware might be helpful to find what kind
 of support is valuable or useful to VMDK image in QEMU. So I checked out some
 documents today, trying to find something. Besides creating types of disks and
@@ -671,9 +671,9 @@ if it can serve as a reference for our driver development.</p>
   
   <entry>
     <title type="html"><![CDATA[Status Update: multi flat/sparse support]]></title>
-    <link href="http://famz.github.com/blog/2011/06/06/status-update-multi-flat-sparse-support/"/>
+    <link href="http://famz.github.io/blog/2011/06/06/status-update-multi-flat-sparse-support/"/>
     <updated>2011-06-06T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/06/06/status-update-multi-flat-sparse-support</id>
+    <id>http://famz.github.io/blog/2011/06/06/status-update-multi-flat-sparse-support</id>
     <content type="html"><![CDATA[<p>Lately an updated patch set has been posted to list, which is splitted and
 improved according to Kevin’s instructions, The patches included <code>monolithicFlat</code>
 and <code>monolithicSparse</code> support.</p>
@@ -712,9 +712,9 @@ and try more vmware applications to create ones.</p>
   
   <entry>
     <title type="html"><![CDATA[Status Update: splitting patches for mono flat]]></title>
-    <link href="http://famz.github.com/blog/2011/06/03/status-update-splitting-patches-for-mono-flat/"/>
+    <link href="http://famz.github.io/blog/2011/06/03/status-update-splitting-patches-for-mono-flat/"/>
     <updated>2011-06-03T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/06/03/status-update-splitting-patches-for-mono-flat</id>
+    <id>http://famz.github.io/blog/2011/06/03/status-update-splitting-patches-for-mono-flat</id>
     <content type="html"><![CDATA[<p>The big monolithic flat patch will be split into small ones, I have the split
 in mind as:</p>
 
@@ -746,9 +746,9 @@ shorter, hope to finish it in Fri.</p>
   
   <entry>
     <title type="html"><![CDATA[Status update: ESX Server Sparse Extent]]></title>
-    <link href="http://famz.github.com/blog/2011/06/02/status-update-esx-server-sparse-extent/"/>
+    <link href="http://famz.github.io/blog/2011/06/02/status-update-esx-server-sparse-extent/"/>
     <updated>2011-06-02T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/06/02/status-update-esx-server-sparse-extent</id>
+    <id>http://famz.github.io/blog/2011/06/02/status-update-esx-server-sparse-extent</id>
     <content type="html"><![CDATA[<p>The <strong>ESX Server Sparse Extent</strong> has the same magic number and very similar header
 fields, with the existing <code>VMDK3Header</code>. Most code can be reused to add support
 for this format. Only a few fields are extra to <code>VMDK3Header</code>, they are used to
@@ -830,9 +830,9 @@ driver a hard job.</p>
   
   <entry>
     <title type="html"><![CDATA[Managing dev code and patch series]]></title>
-    <link href="http://famz.github.com/blog/2011/05/31/managing-dev-code-and-patch-series/"/>
+    <link href="http://famz.github.io/blog/2011/05/31/managing-dev-code-and-patch-series/"/>
     <updated>2011-05-31T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/05/31/managing-dev-code-and-patch-series</id>
+    <id>http://famz.github.io/blog/2011/05/31/managing-dev-code-and-patch-series</id>
     <content type="html"><![CDATA[<p>These are notes of chatting with Kevin on managing patch in qemu development.</p>
 
 <blockquote><p>It is a practice that code submitted to qemu are split to small patches, so
@@ -851,9 +851,9 @@ merging them is easy, just splitting is hard.</p></blockquote>
   
   <entry>
     <title type="html"><![CDATA[Patch: monolithic flat image support]]></title>
-    <link href="http://famz.github.com/blog/2011/05/30/patch-monolithic-flat-image-support/"/>
+    <link href="http://famz.github.io/blog/2011/05/30/patch-monolithic-flat-image-support/"/>
     <updated>2011-05-30T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/05/30/patch-monolithic-flat-image-support</id>
+    <id>http://famz.github.io/blog/2011/05/30/patch-monolithic-flat-image-support</id>
     <content type="html"><![CDATA[<p>VMDK multiple file images can not be recognized for now. This patch is adding
 monolithic flat support to it, that is the image type with two files, one text
 descriptor file and a plain data file. This type of image can be created in
@@ -868,9 +868,9 @@ creating option “flat” is added for creating flat (preallocated) image.</p>
   
   <entry>
     <title type="html"><![CDATA[Status Update: mono flat almost ready]]></title>
-    <link href="http://famz.github.com/blog/2011/05/28/status-update-mono-flat-almost-ready/"/>
+    <link href="http://famz.github.io/blog/2011/05/28/status-update-mono-flat-almost-ready/"/>
     <updated>2011-05-28T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/05/28/status-update-mono-flat-almost-ready</id>
+    <id>http://famz.github.io/blog/2011/05/28/status-update-mono-flat-almost-ready</id>
     <content type="html"><![CDATA[<p>After one week’s work, our mono-flat support is now bound into vmdk. The
 support includes <code>probe</code>, <code>open</code>, <code>read</code>, <code>write</code>, <code>is_allocated</code> and also
 <code>backing_hd</code> of <code>monolithicFlat</code> type images.</p>
@@ -933,9 +933,9 @@ correct it only one line is added ahead:</p>
   
   <entry>
     <title type="html"><![CDATA[Status Update: mono-sparse is recovering]]></title>
-    <link href="http://famz.github.com/blog/2011/05/26/status-update-monosparse-is-recovering/"/>
+    <link href="http://famz.github.io/blog/2011/05/26/status-update-monosparse-is-recovering/"/>
     <updated>2011-05-26T02:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/05/26/status-update-monosparse-is-recovering</id>
+    <id>http://famz.github.io/blog/2011/05/26/status-update-monosparse-is-recovering</id>
     <content type="html"><![CDATA[<p>So far mono flat support is almost complete, and I’ve started to recover
 mono-sparse operations. Open and read are basically back, tomorrow write should
 be finished too.</p>
@@ -948,9 +948,9 @@ support dump in/out external files, in order to power up auto test scripts.</p>
   
   <entry>
     <title type="html"><![CDATA[preview Image Disk Size Counted by Block Driver]]></title>
-    <link href="http://famz.github.com/blog/2011/05/26/image-disk-size-counted-by-block-driver/"/>
+    <link href="http://famz.github.io/blog/2011/05/26/image-disk-size-counted-by-block-driver/"/>
     <updated>2011-05-26T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/05/26/image-disk-size-counted-by-block-driver</id>
+    <id>http://famz.github.io/blog/2011/05/26/image-disk-size-counted-by-block-driver</id>
     <content type="html"><![CDATA[<p>In multiple file vmdk disk, qemu-img info doesn’t count any file allocation
 other than descriptor file (the file pointed by <code>bs-&gt;file</code>). A field is added to
 BlockDriverState to hold actual disk size if block driver itself has its method
@@ -970,9 +970,9 @@ still query the file size from OS, and ignore the ‘zero’.</p>
   
   <entry>
     <title type="html"><![CDATA[Status Update: vmdk open and qemu-img info on Multi File Images]]></title>
-    <link href="http://famz.github.com/blog/2011/05/25/status-update-vmdk_open-and-qemu-img-info/"/>
+    <link href="http://famz.github.io/blog/2011/05/25/status-update-vmdk_open-and-qemu-img-info/"/>
     <updated>2011-05-25T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/05/25/status-update-vmdk_open-and-qemu-img-info</id>
+    <id>http://famz.github.io/blog/2011/05/25/status-update-vmdk_open-and-qemu-img-info</id>
     <content type="html"><![CDATA[<p>The BlockDriver of vmdk is defined as</p>
 
 <!-- more -->

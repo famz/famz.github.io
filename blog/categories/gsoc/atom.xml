@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: gsoc | Virt Block]]></title>
-  <link href="http://famz.github.com/blog/categories/gsoc/atom.xml" rel="self"/>
-  <link href="http://famz.github.com/"/>
-  <updated>2013-04-27T17:06:13+08:00</updated>
-  <id>http://famz.github.com/</id>
+  <link href="http://famz.github.io/blog/categories/gsoc/atom.xml" rel="self"/>
+  <link href="http://famz.github.io/"/>
+  <updated>2013-04-27T17:20:16+08:00</updated>
+  <id>http://famz.github.io/</id>
   <author>
     <name><![CDATA[Fam Zheng]]></name>
     <email><![CDATA[feiran.zheng@redhat.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Comments on VMDK formats]]></title>
-    <link href="http://famz.github.com/blog/2011/08/19/comments-on-vmdk-formats/"/>
+    <link href="http://famz.github.io/blog/2011/08/19/comments-on-vmdk-formats/"/>
     <updated>2011-08-19T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/08/19/comments-on-vmdk-formats</id>
+    <id>http://famz.github.io/blog/2011/08/19/comments-on-vmdk-formats</id>
     <content type="html"><![CDATA[<p>To sum up part of the work in GSoC 2011, this post talks about some facts of
 real-world VMDK format, which is not quite well documented in the official
 Specification <a href="http://www.vmware.com/app/vmdk/?src=vmdk">Virtual Disk Format
@@ -116,9 +116,9 @@ The internal is introduced <a href="/blog/2011/06/15/testing-vmware-mount/">here
   
   <entry>
     <title type="html"><![CDATA[Bug track: vSphere 4.x 'Export to OVF' image]]></title>
-    <link href="http://famz.github.com/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image/"/>
+    <link href="http://famz.github.io/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image/"/>
     <updated>2011-07-21T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image</id>
+    <id>http://famz.github.io/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image</id>
     <content type="html"><![CDATA[<h2>Bug report:</h2>
 
 <p>from <a href="https://bugzilla.redhat.com/show_bug.cgi?id=548723">https://bugzilla.redhat.com/show_bug.cgi?id=548723</a></p>
@@ -165,9 +165,9 @@ the conversion failure.</p>
   
   <entry>
     <title type="html"><![CDATA[Bug track: Issue with block/vmdk]]></title>
-    <link href="http://famz.github.com/blog/2011/07/21/bug-track-issue-with-block-vmdk/"/>
+    <link href="http://famz.github.io/blog/2011/07/21/bug-track-issue-with-block-vmdk/"/>
     <updated>2011-07-21T00:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/07/21/bug-track-issue-with-block-vmdk</id>
+    <id>http://famz.github.io/blog/2011/07/21/bug-track-issue-with-block-vmdk</id>
     <content type="html"><![CDATA[<p>Bug report:</p>
 
 <!-- more -->
@@ -227,9 +227,9 @@ the descriptor.</p>
   
   <entry>
     <title type="html"><![CDATA[Differences between VMDK3 and the specification 'ESX Server Sparse Extent']]></title>
-    <link href="http://famz.github.com/blog/2011/07/03/differences-between-vmdk3-and-the-specification/"/>
+    <link href="http://famz.github.io/blog/2011/07/03/differences-between-vmdk3-and-the-specification/"/>
     <updated>2011-07-03T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/07/03/differences-between-vmdk3-and-the-specification</id>
+    <id>http://famz.github.io/blog/2011/07/03/differences-between-vmdk3-and-the-specification</id>
     <content type="html"><![CDATA[<p>VMDK3 is a format which QEMU has implemented r/w support, it is the only image
 format that VMware Workstation 3 produces, and was updated to what we call
 VMDK4 since Workstation 4.0. The older format is no longer valid in latest
@@ -280,9 +280,9 @@ find any implementation of the latter.</p>
   
   <entry>
     <title type="html"><![CDATA[Bug track: qemu-img convert fails to convert, generates a 512byte file output]]></title>
-    <link href="http://famz.github.com/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert/"/>
+    <link href="http://famz.github.io/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert/"/>
     <updated>2011-07-03T01:00:00+08:00</updated>
-    <id>http://famz.github.com/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert</id>
+    <id>http://famz.github.io/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert</id>
     <content type="html"><![CDATA[<p>Bug report:</p>
 
 <p>Link: <a href="https://bugs.launchpad.net/qemu/+bug/784977">https://bugs.launchpad.net/qemu/+bug/784977</a></p>

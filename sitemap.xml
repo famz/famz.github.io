@@ -1,125 +1,125 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://famz.github.com/blog/2011/05/07/initial-schedule-of-vmdk-part/</loc>
+        <loc>http://famz.github.io/blog/2011/05/07/initial-schedule-of-vmdk-part/</loc>
         <lastmod>2013-04-27T13:31:16+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/05/23/how-qemu-block-driver-works/</loc>
+        <loc>http://famz.github.io/blog/2011/05/23/how-qemu-block-driver-works/</loc>
         <lastmod>2013-04-27T13:09:08+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/05/23/vmdk-support-probing-mono-flat/</loc>
+        <loc>http://famz.github.io/blog/2011/05/23/vmdk-support-probing-mono-flat/</loc>
         <lastmod>2013-04-27T13:20:17+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/05/24/test-script-0/</loc>
+        <loc>http://famz.github.io/blog/2011/05/24/test-script-0/</loc>
         <lastmod>2013-04-27T13:33:33+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/05/24/modifying-bdrvvmdkstate/</loc>
+        <loc>http://famz.github.io/blog/2011/05/24/modifying-bdrvvmdkstate/</loc>
         <lastmod>2013-04-27T13:36:05+08:00</lastmod>
     </url>
     <url>
         <loc>
-            http://famz.github.com/blog/2011/05/25/status-update-vmdk_open-and-qemu-img-info/
+            http://famz.github.io/blog/2011/05/25/status-update-vmdk_open-and-qemu-img-info/
         </loc>
         <lastmod>2013-04-27T13:54:48+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/05/26/image-disk-size-counted-by-block-driver/</loc>
+        <loc>http://famz.github.io/blog/2011/05/26/image-disk-size-counted-by-block-driver/</loc>
         <lastmod>2013-04-27T13:53:56+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/05/26/status-update-monosparse-is-recovering/</loc>
+        <loc>http://famz.github.io/blog/2011/05/26/status-update-monosparse-is-recovering/</loc>
         <lastmod>2013-04-27T13:56:26+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/05/28/status-update-mono-flat-almost-ready/</loc>
+        <loc>http://famz.github.io/blog/2011/05/28/status-update-mono-flat-almost-ready/</loc>
         <lastmod>2013-04-27T14:00:27+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/05/30/patch-monolithic-flat-image-support/</loc>
+        <loc>http://famz.github.io/blog/2011/05/30/patch-monolithic-flat-image-support/</loc>
         <lastmod>2013-04-27T14:04:54+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/05/31/managing-dev-code-and-patch-series/</loc>
+        <loc>http://famz.github.io/blog/2011/05/31/managing-dev-code-and-patch-series/</loc>
         <lastmod>2013-04-27T14:07:38+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/06/02/status-update-esx-server-sparse-extent/</loc>
+        <loc>http://famz.github.io/blog/2011/06/02/status-update-esx-server-sparse-extent/</loc>
         <lastmod>2013-04-27T14:13:17+08:00</lastmod>
     </url>
     <url>
         <loc>
-            http://famz.github.com/blog/2011/06/03/status-update-splitting-patches-for-mono-flat/
+            http://famz.github.io/blog/2011/06/03/status-update-splitting-patches-for-mono-flat/
         </loc>
         <lastmod>2013-04-27T14:22:13+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/06/06/status-update-multi-flat-sparse-support/</loc>
+        <loc>http://famz.github.io/blog/2011/06/06/status-update-multi-flat-sparse-support/</loc>
         <lastmod>2013-04-27T14:48:01+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/06/07/vmware-virtual-disk-use-cases/</loc>
+        <loc>http://famz.github.io/blog/2011/06/07/vmware-virtual-disk-use-cases/</loc>
         <lastmod>2013-04-27T14:53:38+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/06/08/installing-vmware-esx-3.5-on-qemu/</loc>
+        <loc>http://famz.github.io/blog/2011/06/08/installing-vmware-esx-3.5-on-qemu/</loc>
         <lastmod>2013-04-27T14:59:41+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/06/10/status-update-summary-of-the-week/</loc>
+        <loc>http://famz.github.io/blog/2011/06/10/status-update-summary-of-the-week/</loc>
         <lastmod>2013-04-27T16:41:54+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/06/15/more-about-vmdk-descriptor-file/</loc>
+        <loc>http://famz.github.io/blog/2011/06/15/more-about-vmdk-descriptor-file/</loc>
         <lastmod>2013-04-27T16:44:41+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/06/15/testing-vmware-mount/</loc>
+        <loc>http://famz.github.io/blog/2011/06/15/testing-vmware-mount/</loc>
         <lastmod>2013-04-27T16:49:58+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/06/29/writing-stream-optimized-vmdk/</loc>
+        <loc>http://famz.github.io/blog/2011/06/29/writing-stream-optimized-vmdk/</loc>
         <lastmod>2013-04-27T16:49:44+08:00</lastmod>
     </url>
     <url>
         <loc>
-            http://famz.github.com/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert/
+            http://famz.github.io/blog/2011/07/03/bug-track-qemu-img-convert-fails-to-convert/
         </loc>
         <lastmod>2013-04-27T16:57:10+08:00</lastmod>
     </url>
     <url>
         <loc>
-            http://famz.github.com/blog/2011/07/03/differences-between-vmdk3-and-the-specification/
+            http://famz.github.io/blog/2011/07/03/differences-between-vmdk3-and-the-specification/
         </loc>
         <lastmod>2013-04-27T16:53:48+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/07/21/bug-track-issue-with-block-vmdk/</loc>
+        <loc>http://famz.github.io/blog/2011/07/21/bug-track-issue-with-block-vmdk/</loc>
         <lastmod>2013-04-27T16:38:38+08:00</lastmod>
     </url>
     <url>
         <loc>
-            http://famz.github.com/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image/
+            http://famz.github.io/blog/2011/07/21/bug-track-vsphere-4.x-export-to-ovf-image/
         </loc>
         <lastmod>2013-04-27T16:34:50+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/2011/08/19/comments-on-vmdk-formats/</loc>
+        <loc>http://famz.github.io/blog/2011/08/19/comments-on-vmdk-formats/</loc>
         <lastmod>2013-04-27T17:03:07+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/</loc>
+        <loc>http://famz.github.io/</loc>
         <lastmod>2013-04-27T17:03:07+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/robots.txt</loc>
+        <loc>http://famz.github.io/robots.txt</loc>
         <lastmod>2013-04-25T15:07:51+08:00</lastmod>
     </url>
     <url>
-        <loc>http://famz.github.com/blog/archives/</loc>
+        <loc>http://famz.github.io/blog/archives/</loc>
         <lastmod>2013-04-27T17:03:07+08:00</lastmod>
     </url>
 </urlset>

@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://famz.github.com/sitemap.xml 
+Sitemap: http://famz.github.io/sitemap.xml 
